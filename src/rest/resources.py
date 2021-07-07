@@ -2,9 +2,10 @@ from flask_restful import Resource
 from marshmallow import ValidationError
 
 from src import db
-from src.db_service import UserService, MeetingService
+from src.db_service import UserService, MeetingService, TimeslotService
 from src.schemas.user import UserSchema
 from src.schemas.meeting import MeetingSchema
+from src.schemas.timeslot import TimeslotSchema
 from flask import request
 
 
@@ -89,5 +90,44 @@ class MeetingApi(Resource):
         meeting = MeetingService.get(meeting_id)
         if meeting:
             MeetingService.delete(meeting)
+            return "", 204
+        return "", 404
+
+
+class TimeslotApi(Resource):
+    timeslot_schema = TimeslotSchema()
+
+    def get(self, timeslot_id=None):
+        if timeslot_id is None:
+            timeslots = TimeslotService.get_all()
+            return self.timeslot_schema.dump(timeslots, many=True), 200
+        timeslot = TimeslotService.get(timeslot_id)
+        if not timeslot:
+            return "", 404
+        return self.timeslot_schema.dump(timeslot), 200
+
+    def post(self):
+        try:
+            timeslot = self.timeslot_schema.load(request.json, session=db.session)
+        except ValidationError as err:
+            return {"message": str(err)}, 400
+        TimeslotService.add(timeslot)
+        return self.timeslot_schema.dump(timeslot), 201
+
+    def put(self, timeslot_id):
+        timeslot = TimeslotService.get(timeslot_id)
+        if not timeslot:
+            return "", 404
+        try:
+            new_timeslot = self.timeslot_schema.load(request.json, session=db.session)
+        except ValidationError as err:
+            return {"message": str(err)}, 400
+        TimeslotService.update(timeslot, new_timeslot.start_time, new_timeslot.end_time, new_timeslot.user)
+        return self.timeslot_schema.dump(timeslot), 200
+
+    def delete(self, timeslot_id):
+        timeslot = TimeslotService.get(timeslot_id)
+        if timeslot:
+            TimeslotService.delete(timeslot)
             return "", 204
         return "", 404

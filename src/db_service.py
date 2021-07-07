@@ -82,7 +82,6 @@ class TimeslotService:
         db.session.query(Timeslot).filter_by(id=timeslot.id).update(
             dict(start_time=start_time, end_time=end_time, user_id=user.id)
         )
-        db.session.commit()
 
     @staticmethod
     def delete(timeslot: Timeslot) -> None:
