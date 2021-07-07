@@ -57,9 +57,9 @@ class Meeting(db.Model):
     participants = db.relationship('User', secondary=participants, lazy='subquery',
                                    backref=db.backref('invitations', lazy=True))
 
-    def __init__(self, host: User, participants: List[User], meeting_start_time: datetime,
+    def __init__(self, host: User, participants: List[User], meeting_start_time: datetime, host_id,
                  meeting_end_time: datetime, title: str, details: str, link: str, comment: str = None):
-        self.host_id = host.id
+        self.host_id = host_id
         self.host = host
         self.meeting_start_time = meeting_start_time
         self.meeting_end_time = meeting_end_time
