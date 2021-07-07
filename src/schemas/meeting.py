@@ -1,9 +1,9 @@
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
-from models import User
+from src.models import Meeting
 
 
-class UserSchema(SQLAlchemyAutoSchema):
+class MeetingSchema(SQLAlchemyAutoSchema):
     class Meta:
-        model = User
+        model = Meeting
         include_relationships = True
         load_instance = True
