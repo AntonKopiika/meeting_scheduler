@@ -13,10 +13,10 @@ def test_get_users_with_db():
 
 
 def test_post_user_with_db():
-    data = {'username': 'username', 'email': 'email', 'password': 'password'}
+    data = {'username': 'myusername', 'email': 'myemail', 'password': 'password'}
     response = client.post("/user", content_type="application/json", data=json.dumps(data))
     assert response.status_code == http.HTTPStatus.CREATED
-    assert response.json["username"] == "username"
+    assert response.json["username"] == "myusername"
     global user_id
     user_id = response.json["id"]
 
@@ -30,7 +30,7 @@ def test_post_wrong_data_user_with_db():
 def test_get_user_by_id_with_db():
     response = client.get(f"/user/{user_id}")
     assert response.status_code == http.HTTPStatus.OK
-    assert response.json["username"] == "username"
+    assert response.json["username"] == "myusername"
 
 
 def test_get_non_existent_user_with_db():
@@ -39,7 +39,7 @@ def test_get_non_existent_user_with_db():
 
 
 def test_put_user_with_db():
-    data = {'username': 'somename', 'email': 'email', 'password': 'password'}
+    data = {'username': 'somename', 'email': 'someemail', 'password': 'password'}
     response = client.put(f"/user/{user_id}", content_type="application/json", data=json.dumps(data))
 
     assert response.status_code == http.HTTPStatus.OK
