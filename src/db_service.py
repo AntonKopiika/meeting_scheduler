@@ -25,7 +25,6 @@ class CRUDService:
             update_json.pop("participants")
         db.session.query(self.cls).filter_by(id=instance.id).update(update_json)
 
-
     def delete(self, instance):
         db.session.delete(instance)
         db.session.commit()
