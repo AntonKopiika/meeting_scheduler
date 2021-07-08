@@ -44,7 +44,11 @@ class UserApi(Resource):
             new_user = self.user_schema.load(request.json, session=db.session)
         except ValidationError as err:
             return {"message": str(err)}, 400
-        update_json = {"username": new_user.username, "email": new_user.email, "password": new_user.password}
+        update_json = {
+            "username": new_user.username,
+            "email": new_user.email,
+            "password": new_user.password
+        }
         self.user_db_service.update(user, update_json)
         return self.user_schema.dump(user), 200
 
@@ -85,10 +89,16 @@ class MeetingApi(Resource):
             new_meeting = self.meeting_schema.load(request.json, session=db.session)
         except ValidationError as err:
             return {"message": str(err)}, 400
-        update_json = {"host_id": new_meeting.host.id, "participants": new_meeting.participants,
-                       "meeting_start_time": new_meeting.meeting_start_time,
-                       "meeting_end_time": new_meeting.meeting_end_time, "title": new_meeting.title,
-                       "details": new_meeting.details, "link": new_meeting.link, "comment": new_meeting.comment}
+        update_json = {
+            "host_id": new_meeting.host.id,
+            "participants": new_meeting.participants,
+            "meeting_start_time": new_meeting.meeting_start_time,
+            "meeting_end_time": new_meeting.meeting_end_time,
+            "title": new_meeting.title,
+            "details": new_meeting.details,
+            "link": new_meeting.link,
+            "comment": new_meeting.comment
+        }
         self.meeting_db_service.update(meeting, update_json)
         return self.meeting_schema.dump(meeting), 200
 
@@ -129,8 +139,11 @@ class TimeslotApi(Resource):
             new_timeslot = self.timeslot_schema.load(request.json, session=db.session)
         except ValidationError as err:
             return {"message": str(err)}, 400
-        update_json = {"start_time": new_timeslot.start_time, "end_time": new_timeslot.end_time,
-                       "user_id": new_timeslot.user.id}
+        update_json = {
+            "start_time": new_timeslot.start_time,
+            "end_time": new_timeslot.end_time,
+            "user_id": new_timeslot.user.id
+        }
         self.timeslot_db_service.update(timeslot, update_json)
         return self.timeslot_schema.dump(timeslot), 200
 

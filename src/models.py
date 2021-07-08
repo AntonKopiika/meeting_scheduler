@@ -39,9 +39,11 @@ class Timeslot(db.Model):
         return f'<Timeslot: {self.start_time}-{self.end_time} for {self.user}>'
 
 
-participants = db.Table('participant',
-                        db.Column('participant_id', db.Integer, db.ForeignKey('user.id'), primary_key=True),
-                        db.Column('meeting_id', db.Integer, db.ForeignKey('meeting.id'), primary_key=True))
+participants = db.Table(
+    'participant',
+    db.Column('participant_id', db.Integer, db.ForeignKey('user.id'), primary_key=True),
+    db.Column('meeting_id', db.Integer, db.ForeignKey('meeting.id'), primary_key=True)
+)
 
 
 class Meeting(db.Model):

@@ -13,10 +13,17 @@ def test_get_meetings_with_db():
 
 
 def test_post_meeting_with_db():
-    data = {"host": 5, "participants": [6], "meeting_start_time": "2021-07-07T12:10:44.126104",
-            "meeting_end_time": "2021-07-07T12:10:44.126104",
-            "host_id": 5, "title": "title", "details": "teems", "comment": "comment",
-            "link": "link"}
+    data = {
+        "host": 5,
+        "participants": [6],
+        "meeting_start_time": "2021-07-07T12:10:44.126104",
+        "meeting_end_time": "2021-07-07T12:10:44.126104",
+        "host_id": 5,
+        "title": "title",
+        "details": "teems",
+        "comment": "comment",
+        "link": "link"
+    }
     response = client.post("/meeting", content_type="application/json", data=json.dumps(data))
     assert response.status_code == http.HTTPStatus.CREATED
     assert response.json["title"] == "title"
@@ -42,10 +49,17 @@ def test_get_meeting_by_id_with_db():
 
 
 def test_put_meeting_with_db():
-    data = {"host": 5, "participants": [4,6], "meeting_start_time": "2021-07-07T12:10:44.126104",
-            "meeting_end_time": "2021-07-07T12:10:44.126104",
-            "host_id": 5, "title": "another title", "details": "teems", "comment": "comment",
-            "link": "link"}
+    data = {
+        "host": 5,
+        "participants": [4, 6],
+        "meeting_start_time": "2021-07-07T12:10:44.126104",
+        "meeting_end_time": "2021-07-07T12:10:44.126104",
+        "host_id": 5,
+        "title": "another title",
+        "details": "teems",
+        "comment": "comment",
+        "link": "link"
+    }
     response = client.put(f"/meeting/{meeting_id}", content_type="application/json", data=json.dumps(data))
 
     assert response.status_code == http.HTTPStatus.OK
