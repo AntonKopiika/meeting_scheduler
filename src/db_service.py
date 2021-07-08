@@ -1,7 +1,6 @@
 from src import db
-from .models import User, Meeting, Timeslot
-from werkzeug.security import generate_password_hash
-
+from .models import User, Meeting
+from src import bcrypt
 
 class CRUDService:
     def __init__(self, cls):
@@ -19,7 +18,7 @@ class CRUDService:
 
     def update(self, instance, update_json: dict):
         if isinstance(instance, User):
-            update_json["password"] = generate_password_hash(update_json["password"])
+            update_json["password"] = bcrypt.generate_password_hash(update_json["password"]).decode("utf-8")
         elif isinstance(instance, Meeting):
             instance.participants = update_json["participants"]
             update_json.pop("participants")

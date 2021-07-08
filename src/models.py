@@ -1,7 +1,6 @@
 from datetime import datetime
 from typing import List
-from src import db
-from werkzeug.security import generate_password_hash
+from src import db, bcrypt
 
 
 class User(db.Model):
@@ -15,13 +14,13 @@ class User(db.Model):
     def __init__(self, username: str, email: str, password: str):
         self.username = username
         self.email = email
-        self.password = generate_password_hash(password)
+        self.password = bcrypt.generate_password_hash(password).decode('utf-8')
 
     def __repr__(self):
         return f'<User: {self.username}>'
 
-    def generate_password(self, password):
-        self.password = generate_password_hash(password)
+    def check_password(self, password):
+        return bcrypt.check_password_hash(self.password, password)
 
 
 class Timeslot(db.Model):
