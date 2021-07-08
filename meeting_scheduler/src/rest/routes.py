@@ -1,5 +1,5 @@
-from src import api
-from src.rest.resources import Smoke, UserApi, MeetingApi, TimeslotApi
+from meeting_scheduler.src import api
+from meeting_scheduler.src.rest.resources import Smoke, UserApi, MeetingApi, TimeslotApi
 
 api.add_resource(Smoke, "/smoke")
 api.add_resource(UserApi, "/user",  "/user/<user_id>", strict_slashes=False)

@@ -1,9 +1,9 @@
 from flask_restful import Resource
-from src.db_service import CRUDService
-from src.models import User, Meeting, Timeslot
-from src.schemas.user import UserSchema
-from src.schemas.meeting import MeetingSchema
-from src.schemas.timeslot import TimeslotSchema
+from meeting_scheduler.src.db_service import CRUDService
+from meeting_scheduler.src.models import User, Meeting, Timeslot
+from meeting_scheduler.src.schemas.user import UserSchema
+from meeting_scheduler.src.schemas.meeting import MeetingSchema
+from meeting_scheduler.src.schemas.timeslot import TimeslotSchema
 from flask import request
 
 

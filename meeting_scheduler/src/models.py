@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import List
-from src import db, bcrypt
+from meeting_scheduler.src import db, bcrypt
 
 
 class User(db.Model):

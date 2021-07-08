@@ -1,6 +1,6 @@
 import http
 
-from src import app
+from meeting_scheduler.src import app
 
 
 def test_smoke():

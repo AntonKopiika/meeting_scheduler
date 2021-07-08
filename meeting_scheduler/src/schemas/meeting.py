@@ -1,6 +1,6 @@
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
-from src.models import Meeting
-from src.schemas.mixins import DeserializationMixin
+from meeting_scheduler.src.models import Meeting
+from meeting_scheduler.src.schemas.mixins import DeserializationMixin
 
 
 class MeetingSchema(SQLAlchemyAutoSchema, DeserializationMixin):

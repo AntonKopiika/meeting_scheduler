@@ -1,6 +1,6 @@
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
-from src.models import Timeslot
-from src.schemas.mixins import DeserializationMixin
+from meeting_scheduler.src.models import Timeslot
+from meeting_scheduler.src.schemas.mixins import DeserializationMixin
 
 
 class TimeslotSchema(SQLAlchemyAutoSchema, DeserializationMixin):

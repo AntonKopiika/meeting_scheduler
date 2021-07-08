@@ -1,7 +1,6 @@
-from src import db
+from meeting_scheduler.src import db
 from .models import User, Meeting
-from src import bcrypt
-
+from meeting_scheduler.src import bcrypt
 
 class CRUDService:
     def __init__(self, cls):

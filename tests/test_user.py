@@ -1,7 +1,7 @@
 import http
 import json
 
-import src
+from meeting_scheduler import src
 
 client = src.app.test_client()
 user_id = 0
