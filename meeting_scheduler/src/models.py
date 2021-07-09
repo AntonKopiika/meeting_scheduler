@@ -1,6 +1,10 @@
 from datetime import datetime
 from typing import List
-from meeting_scheduler.src import db, bcrypt
+from meeting_scheduler.src import DBFactory
+
+factory = DBFactory()
+db = factory.get_db()
+bcrypt = factory.get_bcrypt()
 
 
 class User(db.Model):

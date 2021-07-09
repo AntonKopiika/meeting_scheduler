@@ -1,30 +1,33 @@
-from meeting_scheduler.src import db
 from .models import User, Meeting
-from meeting_scheduler.src import bcrypt
+from meeting_scheduler.src import DBFactory
+
+factory = DBFactory()
+bcrypt = factory.get_bcrypt()
 
 
 class CRUDService:
-    def __init__(self, cls):
-        self.cls = cls
+    def __init__(self, model, db):
+        self.model = model
+        self.db = db
 
-    def add(self, instance: db.Model):
-        db.session.add(instance)
-        db.session.commit()
+    def add(self, instance):
+        self.db.session.add(instance)
+        self.db.session.commit()
 
     def get(self, id: int):
-        return self.cls.query.get(id)
+        return self.model.query.get(id)
 
     def get_all(self):
-        return self.cls.query.all()
+        return self.model.query.all()
 
-    def update(self, instance: db.Model, update_json: dict):
+    def update(self, instance, update_json: dict):
         if isinstance(instance, User):
             update_json["password"] = bcrypt.generate_password_hash(update_json["password"]).decode("utf-8")
         elif isinstance(instance, Meeting):
             instance.participants = update_json["participants"]
             update_json.pop("participants")
-        db.session.query(self.cls).filter_by(id=instance.id).update(update_json)
+        self.db.session.query(self.model).filter_by(id=instance.id).update(update_json)
 
-    def delete(self, instance: db.Model):
-        db.session.delete(instance)
-        db.session.commit()
+    def delete(self, instance):
+        self.db.session.delete(instance)
+        self.db.session.commit()

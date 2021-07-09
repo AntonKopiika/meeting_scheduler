@@ -1,10 +1,13 @@
 from flask_restful import Resource
+from meeting_scheduler.src import DBFactory
 from meeting_scheduler.src.db_service import CRUDService
 from meeting_scheduler.src.models import User, Meeting, Timeslot
 from meeting_scheduler.src.schemas.user import UserSchema
 from meeting_scheduler.src.schemas.meeting import MeetingSchema
 from meeting_scheduler.src.schemas.timeslot import TimeslotSchema
 from flask import request
+
+db = DBFactory().get_db()
 
 
 class Smoke(Resource):
@@ -14,7 +17,7 @@ class Smoke(Resource):
 
 class UserApi(Resource):
     user_schema = UserSchema()
-    user_db_service = CRUDService(User)
+    user_db_service = CRUDService(User, db)
 
     def get(self, user_id=None):
         if user_id is None:
@@ -57,7 +60,7 @@ class UserApi(Resource):
 
 class MeetingApi(Resource):
     meeting_schema = MeetingSchema()
-    meeting_db_service = CRUDService(Meeting)
+    meeting_db_service = CRUDService(Meeting, db)
 
     def get(self, meeting_id=None):
         if meeting_id is None:
@@ -105,7 +108,7 @@ class MeetingApi(Resource):
 
 class TimeslotApi(Resource):
     timeslot_schema = TimeslotSchema()
-    timeslot_db_service = CRUDService(Timeslot)
+    timeslot_db_service = CRUDService(Timeslot, db)
 
     def get(self, timeslot_id=None):
         if timeslot_id is None:

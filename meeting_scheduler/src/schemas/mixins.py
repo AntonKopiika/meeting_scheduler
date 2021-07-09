@@ -1,5 +1,7 @@
 from marshmallow import ValidationError
-from meeting_scheduler.src import db
+from meeting_scheduler.src import DBFactory
+
+db = DBFactory().get_db()
 
 
 class DeserializationMixin:
