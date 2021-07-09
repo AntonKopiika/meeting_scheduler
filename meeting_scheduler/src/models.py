@@ -29,12 +29,6 @@ class Timeslot(db.Model):
     end_time = db.Column(db.DateTime, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
-    def __init__(self, start_time: datetime, end_time: datetime, user: User):
-        self.start_time = start_time
-        self.end_time = end_time
-        self.user = user
-        self.user_id = user.id
-
     def __repr__(self):
         return f'<Timeslot: {self.start_time}-{self.end_time} for {self.user}>'
 
