@@ -1,9 +1,9 @@
 import http
 import json
 
-from meeting_scheduler import src
+from meeting_scheduler.src import app
 
-client = src.app.test_client()
+client = app.test_client()
 meeting_id = 0
 
 

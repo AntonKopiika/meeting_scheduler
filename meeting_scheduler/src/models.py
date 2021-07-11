@@ -1,8 +1,8 @@
 from datetime import datetime
 from typing import List
-from meeting_scheduler.src import DBFactory
+from meeting_scheduler.src import ServiceFactory, container
 
-factory = DBFactory()
+factory = ServiceFactory(container)
 db = factory.get_db()
 bcrypt = factory.get_bcrypt()
 

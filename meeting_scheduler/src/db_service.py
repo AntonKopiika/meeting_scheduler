@@ -1,7 +1,7 @@
 from .models import User, Meeting
-from meeting_scheduler.src import DBFactory
+from meeting_scheduler.src import ServiceFactory, container
 
-factory = DBFactory()
+factory = ServiceFactory(container)
 bcrypt = factory.get_bcrypt()
 
 

@@ -1,7 +1,7 @@
-from meeting_scheduler.src import DBFactory
+from meeting_scheduler.src import ServiceFactory, container
 from meeting_scheduler.src.rest.resources import Smoke, UserApi, MeetingApi, TimeslotApi
 
-api = DBFactory().get_api()
+api = ServiceFactory(container).get_api()
 
 api.add_resource(Smoke, "/smoke")
 api.add_resource(UserApi, "/user", "/user/<user_id>", strict_slashes=False)
