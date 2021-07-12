@@ -4,7 +4,7 @@ from flask_bcrypt import Bcrypt
 from flask_sqlalchemy import SQLAlchemy
 from flask_restful import Api
 import os
-from container import ServiceContainer, AppContainer
+from containers import ServiceContainer, AppContainer
 
 
 def create_service_container(app):
