@@ -19,7 +19,7 @@ class UserApi(Resource):
     user_schema = UserSchema()
     user_db_service = CRUDService(User, db)
 
-    def get(self, user_id=None):
+    def get(self, user_id: int = None):
         if user_id is None:
             users = self.user_db_service.get_all()
             return self.user_schema.dump(users, many=True), 200
@@ -35,7 +35,7 @@ class UserApi(Resource):
             return self.user_schema.dump(user), 201
         return "", 400
 
-    def put(self, user_id):
+    def put(self, user_id:int):
         user = self.user_db_service.get(user_id)
         if not user:
             return "", 404
@@ -50,7 +50,7 @@ class UserApi(Resource):
             return self.user_schema.dump(user), 200
         return "", 400
 
-    def delete(self, user_id):
+    def delete(self, user_id: int):
         user = self.user_db_service.get(user_id)
         if user:
             self.user_db_service.delete(user)
@@ -62,7 +62,7 @@ class MeetingApi(Resource):
     meeting_schema = MeetingSchema()
     meeting_db_service = CRUDService(Meeting, db)
 
-    def get(self, meeting_id=None):
+    def get(self, meeting_id: int =None):
         if meeting_id is None:
             meetings = self.meeting_db_service.get_all()
             return self.meeting_schema.dump(meetings, many=True), 200
@@ -78,7 +78,7 @@ class MeetingApi(Resource):
             return self.meeting_schema.dump(meeting), 201
         return "", 400
 
-    def put(self, meeting_id):
+    def put(self, meeting_id: int):
         meeting = self.meeting_db_service.get(meeting_id)
         if not meeting:
             return "", 404
@@ -98,7 +98,7 @@ class MeetingApi(Resource):
             return self.meeting_schema.dump(meeting), 200
         return "", 400
 
-    def delete(self, meeting_id):
+    def delete(self, meeting_id: int):
         meeting = self.meeting_db_service.get(meeting_id)
         if meeting:
             self.meeting_db_service.delete(meeting)
@@ -110,7 +110,7 @@ class TimeslotApi(Resource):
     timeslot_schema = TimeslotSchema()
     timeslot_db_service = CRUDService(Timeslot, db)
 
-    def get(self, timeslot_id=None):
+    def get(self, timeslot_id: int = None):
         if timeslot_id is None:
             timeslots = self.timeslot_db_service.get_all()
             return self.timeslot_schema.dump(timeslots, many=True), 200
@@ -126,7 +126,7 @@ class TimeslotApi(Resource):
             return self.timeslot_schema.dump(timeslot), 201
         return "", 400
 
-    def put(self, timeslot_id):
+    def put(self, timeslot_id: int):
         timeslot = self.timeslot_db_service.get(timeslot_id)
         if not timeslot:
             return "", 404
@@ -141,7 +141,7 @@ class TimeslotApi(Resource):
             return self.timeslot_schema.dump(timeslot), 200
         return "", 400
 
-    def delete(self, timeslot_id):
+    def delete(self, timeslot_id: int):
         timeslot = self.timeslot_db_service.get(timeslot_id)
         if timeslot:
             self.timeslot_db_service.delete(timeslot)

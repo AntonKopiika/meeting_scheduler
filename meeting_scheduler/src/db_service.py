@@ -1,4 +1,4 @@
-from typing import Type, Union
+from typing import Type, Union, List
 
 from flask_sqlalchemy import SQLAlchemy
 
@@ -18,10 +18,10 @@ class CRUDService:
         self.db.session.add(instance)
         self.db.session.commit()
 
-    def get(self, id: int):
+    def get(self, id: int) -> Union[User, Meeting, Timeslot]:
         return self.model.query.get(id)
 
-    def get_all(self):
+    def get_all(self) -> List[Union[User, Meeting, Timeslot]]:
         return self.model.query.all()
 
     def update(self, instance: Union[User, Meeting, Timeslot], update_json: dict):
