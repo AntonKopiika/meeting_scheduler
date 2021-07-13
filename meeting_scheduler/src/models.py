@@ -1,5 +1,3 @@
-from datetime import datetime
-from typing import List
 from meeting_scheduler.src import ServiceFactory, container
 
 factory = ServiceFactory(container)
@@ -23,7 +21,7 @@ class User(db.Model):
     def __repr__(self):
         return f'<User: {self.username}>'
 
-    def check_password(self, password):
+    def check_password(self, password: str):
         return bcrypt.check_password_hash(self.password, password)
 
 
@@ -55,28 +53,6 @@ class Meeting(db.Model):
     details = db.Column(db.String(64), nullable=False)
     participants = db.relationship('User', secondary=participants, lazy='subquery',
                                    backref=db.backref('invitations', lazy=True))
-
-    def __init__(
-            self,
-            host: User,
-            participants: List[User],
-            meeting_start_time: datetime,
-            host_id: int,
-            meeting_end_time: datetime,
-            title: str,
-            details: str,
-            link: str,
-            comment: str = None
-    ):
-        self.host_id = host_id
-        self.host = host
-        self.meeting_start_time = meeting_start_time
-        self.meeting_end_time = meeting_end_time
-        self.title = title
-        self.details = details
-        self.link = link
-        self.comment = comment
-        self.participants = participants
 
     def __repr__(self):
         return f'<Meeting: {self.meeting_start_time}-{self.meeting_start_time} for {self.host}>'
