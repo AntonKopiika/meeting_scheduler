@@ -1,9 +1,11 @@
+import os
+
 import injections
 from flask import Flask
-import os
 from flask_restful import Api
+
 from containers import AppContainer
-from meeting_scheduler.src.models import db, bcrypt
+from meeting_scheduler.src.models import bcrypt, db
 
 
 def create_app_container(db_uri):

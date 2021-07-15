@@ -1,11 +1,12 @@
+from flask import request
 from flask_restful import Resource
+
 from meeting_scheduler.src import app_factory
 from meeting_scheduler.src.db_service import CRUDService
-from meeting_scheduler.src.models import User, Meeting, Timeslot
-from meeting_scheduler.src.schemas.user import UserSchema
+from meeting_scheduler.src.models import Meeting, Timeslot, User
 from meeting_scheduler.src.schemas.meeting import MeetingSchema
 from meeting_scheduler.src.schemas.timeslot import TimeslotSchema
-from flask import request
+from meeting_scheduler.src.schemas.user import UserSchema
 
 db = app_factory.get_db()
 

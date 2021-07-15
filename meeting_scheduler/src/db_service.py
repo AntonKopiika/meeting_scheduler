@@ -1,9 +1,9 @@
-from typing import Type, Union, List
+from typing import List, Type, Union
 
 from flask_sqlalchemy import SQLAlchemy
 
-from meeting_scheduler.src.models import User, Meeting, Timeslot
 from meeting_scheduler.src import app_factory
+from meeting_scheduler.src.models import Meeting, Timeslot, User
 
 bcrypt = app_factory.get_bcrypt()
 
