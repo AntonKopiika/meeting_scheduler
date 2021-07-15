@@ -7,6 +7,4 @@ install:
   - pip install -e .
   - pip install flake8
 script:
-  - pytest
-after_success:
-  - flake8 meeting_scheduler
+  - pytest --flake8
