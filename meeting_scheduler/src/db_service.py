@@ -9,7 +9,11 @@ bcrypt = app_factory.get_bcrypt()
 
 
 class CRUDService:
-    def __init__(self, model: Type[Union[User, Meeting, Timeslot]], db: SQLAlchemy):
+    def __init__(
+            self,
+            model: Type[Union[User, Meeting, Timeslot]],
+            db: SQLAlchemy
+    ):
         self.model = model
         self.db = db
 
@@ -23,9 +27,15 @@ class CRUDService:
     def get_all(self) -> List[Union[User, Meeting, Timeslot]]:
         return self.model.query.all()
 
-    def update(self, instance: Union[User, Meeting, Timeslot], update_json: dict):
+    def update(
+            self,
+            instance: Union[User, Meeting, Timeslot],
+            update_json: dict
+    ):
         if isinstance(instance, User):
-            update_json["password"] = bcrypt.generate_password_hash(update_json["password"]).decode("utf-8")
+            update_json["password"] = bcrypt.\
+                generate_password_hash(update_json["password"]).\
+                decode("utf-8")
             self.model.query.filter_by(id=instance.id).update(update_json)
         elif isinstance(instance, Meeting):
             instance.participants = update_json["participants"]

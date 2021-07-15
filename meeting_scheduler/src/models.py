@@ -10,8 +10,18 @@ class User(db.Model):
     username = db.Column(db.String(64), unique=True, nullable=False)
     email = db.Column(db.String(64), unique=True, nullable=False)
     password = db.Column(db.String(256), nullable=False)
-    timeslots = db.relationship('Timeslot', backref='user', lazy=True, cascade="all, delete")
-    meetings = db.relationship('Meeting', backref='host', lazy=True, cascade="all, delete")
+    timeslots = db.relationship(
+        'Timeslot',
+        backref='user',
+        lazy=True,
+        cascade="all, delete"
+    )
+    meetings = db.relationship(
+        'Meeting',
+        backref='host',
+        lazy=True,
+        cascade="all, delete"
+    )
 
     def __init__(self, username: str, email: str, password: str):
         self.username = username
@@ -37,8 +47,18 @@ class Timeslot(db.Model):
 
 participants = db.Table(
     'participant',
-    db.Column('participant_id', db.Integer, db.ForeignKey('user.id'), primary_key=True),
-    db.Column('meeting_id', db.Integer, db.ForeignKey('meeting.id'), primary_key=True)
+    db.Column(
+        'participant_id',
+        db.Integer,
+        db.ForeignKey('user.id'),
+        primary_key=True
+    ),
+    db.Column(
+        'meeting_id',
+        db.Integer,
+        db.ForeignKey('meeting.id'),
+        primary_key=True
+    )
 )
 
 
@@ -51,8 +71,13 @@ class Meeting(db.Model):
     comment = db.Column(db.String(256))
     link = db.Column(db.String(64), nullable=False)
     details = db.Column(db.String(64), nullable=False)
-    participants = db.relationship('User', secondary=participants, lazy='subquery',
-                                   backref=db.backref('invitations', lazy=True))
+    participants = db.relationship(
+        'User',
+        secondary=participants,
+        lazy='subquery',
+        backref=db.backref('invitations', lazy=True)
+    )
 
     def __repr__(self):
-        return f'<Meeting: {self.meeting_start_time}-{self.meeting_start_time} for {self.host}>'
+        return f'<Meeting: {self.meeting_start_time}' \
+               f'-{self.meeting_start_time} for {self.host}>'

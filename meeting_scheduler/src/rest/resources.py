@@ -36,7 +36,7 @@ class UserApi(Resource):
             return self.user_schema.dump(user), 201
         return "", 400
 
-    def put(self, user_id:int):
+    def put(self, user_id: int):
         user = self.user_db_service.get(user_id)
         if not user:
             return "", 404
@@ -63,7 +63,7 @@ class MeetingApi(Resource):
     meeting_schema = MeetingSchema()
     meeting_db_service = CRUDService(Meeting, db)
 
-    def get(self, meeting_id: int =None):
+    def get(self, meeting_id: int = None):
         if meeting_id is None:
             meetings = self.meeting_db_service.get_all()
             return self.meeting_schema.dump(meetings, many=True), 200
