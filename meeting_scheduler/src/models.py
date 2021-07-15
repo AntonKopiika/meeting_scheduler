@@ -1,8 +1,8 @@
-from meeting_scheduler.src import ServiceFactory, container
+from flask_bcrypt import Bcrypt
+from flask_sqlalchemy import SQLAlchemy
 
-factory = ServiceFactory(container)
-db = factory.get_db()
-bcrypt = factory.get_bcrypt()
+db = SQLAlchemy()
+bcrypt = Bcrypt()
 
 
 class User(db.Model):
@@ -10,8 +10,8 @@ class User(db.Model):
     username = db.Column(db.String(64), unique=True, nullable=False)
     email = db.Column(db.String(64), unique=True, nullable=False)
     password = db.Column(db.String(256), nullable=False)
-    timeslots = db.relationship('Timeslot', backref='user', lazy=True)
-    meetings = db.relationship('Meeting', backref='host', lazy=True)
+    timeslots = db.relationship('Timeslot', backref='user', lazy=True, cascade="all, delete")
+    meetings = db.relationship('Meeting', backref='host', lazy=True, cascade="all, delete")
 
     def __init__(self, username: str, email: str, password: str):
         self.username = username

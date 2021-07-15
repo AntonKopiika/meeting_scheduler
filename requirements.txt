@@ -9,3 +9,4 @@ pytest==6.2.4
 flask_bcrypt==0.7.1
 setuptools==57.1.0
 injections==0.2.2
+sqlalchemy-utils==0.37.8

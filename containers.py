@@ -6,12 +6,13 @@ from flask_restful import Api
 
 
 @injections.has
-class ServiceContainer:
+class AppContainer:
+    app = injections.depends(Flask, "app")
     db = injections.depends(SQLAlchemy, "db")
     bcrypt = injections.depends(Bcrypt, "bcrypt")
     api = injections.depends(Api, "api")
 
 
 @injections.has
-class AppContainer:
-    app = injections.depends(Flask, "app")
+class TestContainer:
+    a = injections.depends(int, "a")

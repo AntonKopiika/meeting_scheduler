@@ -1,5 +1,5 @@
 from flask_restful import Resource
-from meeting_scheduler.src import ServiceFactory, container
+from meeting_scheduler.src import app_factory
 from meeting_scheduler.src.db_service import CRUDService
 from meeting_scheduler.src.models import User, Meeting, Timeslot
 from meeting_scheduler.src.schemas.user import UserSchema
@@ -7,7 +7,7 @@ from meeting_scheduler.src.schemas.meeting import MeetingSchema
 from meeting_scheduler.src.schemas.timeslot import TimeslotSchema
 from flask import request
 
-db = ServiceFactory(container).get_db()
+db = app_factory.get_db()
 
 
 class Smoke(Resource):
@@ -135,7 +135,7 @@ class TimeslotApi(Resource):
             update_json = {
                 "start_time": new_timeslot.start_time,
                 "end_time": new_timeslot.end_time,
-                "user_id": new_timeslot.user.id
+                "user": new_timeslot.user.id
             }
             self.timeslot_db_service.update(timeslot, update_json)
             return self.timeslot_schema.dump(timeslot), 200

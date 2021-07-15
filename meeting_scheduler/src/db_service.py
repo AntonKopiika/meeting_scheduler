@@ -3,10 +3,9 @@ from typing import Type, Union, List
 from flask_sqlalchemy import SQLAlchemy
 
 from meeting_scheduler.src.models import User, Meeting, Timeslot
-from meeting_scheduler.src import ServiceFactory, container
+from meeting_scheduler.src import app_factory
 
-factory = ServiceFactory(container)
-bcrypt = factory.get_bcrypt()
+bcrypt = app_factory.get_bcrypt()
 
 
 class CRUDService:
@@ -27,10 +26,17 @@ class CRUDService:
     def update(self, instance: Union[User, Meeting, Timeslot], update_json: dict):
         if isinstance(instance, User):
             update_json["password"] = bcrypt.generate_password_hash(update_json["password"]).decode("utf-8")
+            self.model.query.filter_by(id=instance.id).update(update_json)
         elif isinstance(instance, Meeting):
             instance.participants = update_json["participants"]
             update_json.pop("participants")
-        self.db.session.query(self.model).filter_by(id=instance.id).update(update_json)
+            self.model.query.filter_by(id=instance.id).update(update_json)
+        elif isinstance(instance, Timeslot):
+            instance.start_time = update_json["start_time"]
+            instance.end_time = update_json["end_time"]
+            instance.user_id = update_json["user"]
+            self.db.session.add(instance)
+        self.db.session.commit()
 
     def delete(self, instance: Union[User, Meeting, Timeslot]):
         self.db.session.delete(instance)

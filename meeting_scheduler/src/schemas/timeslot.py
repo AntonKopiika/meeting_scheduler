@@ -1,9 +1,9 @@
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
-from meeting_scheduler.src import container, ServiceFactory
+from meeting_scheduler.src import app_factory
 from meeting_scheduler.src.models import Timeslot
 from meeting_scheduler.src.schemas.mixins import DeserializationMixin
 
-db = ServiceFactory(container).get_db()
+db = app_factory.get_db()
 
 
 class TimeslotSchema(SQLAlchemyAutoSchema, DeserializationMixin):
