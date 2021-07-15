@@ -9,6 +9,6 @@ install:
   - pip install isort
 before_script:
   - isort meeting_scheduler -c -v
-  - flake8 meeting_scheduler
+  - flake8 --ignore E402,F401 meeting_scheduler
 script:
   - pytest
