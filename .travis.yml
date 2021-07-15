@@ -1,9 +1,12 @@
 language: python
 python:
-    - "3.9"
+  - "3.9"
 
 install:
-    - pip install -r requirements.txt
-    - pip install -e .
+  - pip install -r requirements.txt
+  - pip install -e .
+  - pip install pylint
 script:
-    - pytest
+  - pytest
+after_success:
+  - pylint meeting_scheduler
