@@ -42,6 +42,19 @@ class Timeslot(db.Model):
     end_time = db.Column(db.DateTime, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
+    def check_overlaps(self, timeslot_to_update=None):
+        user = self.user
+        user_timeslots = \
+            [timeslot for timeslot in user.timeslots
+             if timeslot != timeslot_to_update]
+        for timeslot in user_timeslots:
+            if DateTimeRange(timeslot.start_time,
+                             timeslot.end_time).is_intersection(
+                DateTimeRange(self.start_time,
+                              self.end_time)):
+                return False
+        return True
+
     def __repr__(self):
         return f'<Timeslot: {self.start_time}-{self.end_time} for {self.user}>'
 
@@ -87,8 +100,8 @@ class Meeting(db.Model):
         for h_meeting in host_meetings:
             if DateTimeRange(h_meeting.meeting_start_time,
                              h_meeting.meeting_end_time).is_intersection(
-                    DateTimeRange(self.meeting_start_time,
-                                  self.meeting_end_time)):
+                DateTimeRange(self.meeting_start_time,
+                              self.meeting_end_time)):
                 return False
         participants = self.participants
         for participant in participants:
@@ -98,8 +111,8 @@ class Meeting(db.Model):
             for p_meeting in participant_meetings:
                 if DateTimeRange(p_meeting.meeting_start_time,
                                  p_meeting.meeting_end_time).is_intersection(
-                        DateTimeRange(self.meeting_start_time,
-                                      self.meeting_end_time)):
+                    DateTimeRange(self.meeting_start_time,
+                                  self.meeting_end_time)):
                     return False
         return True
 

@@ -84,7 +84,7 @@ class MeetingApi(Resource):
         if not meeting:
             return "", 404
         new_meeting = self.meeting_schema.deserialize(request.json)
-        if new_meeting and new_meeting.\
+        if new_meeting and new_meeting. \
                 check_overlaps(meeting_to_update=meeting):
             update_json = {
                 "host_id": new_meeting.host.id,
@@ -123,7 +123,7 @@ class TimeslotApi(Resource):
 
     def post(self):
         timeslot = self.timeslot_schema.deserialize(request.json)
-        if timeslot:
+        if timeslot and timeslot.check_overlaps():
             self.timeslot_db_service.add(timeslot)
             return self.timeslot_schema.dump(timeslot), 201
         return "", 400
@@ -133,7 +133,7 @@ class TimeslotApi(Resource):
         if not timeslot:
             return "", 404
         new_timeslot = self.timeslot_schema.deserialize(request.json)
-        if new_timeslot:
+        if new_timeslot and new_timeslot.check_overlaps(timeslot_to_update=timeslot):
             update_json = {
                 "start_time": new_timeslot.start_time,
                 "end_time": new_timeslot.end_time,
