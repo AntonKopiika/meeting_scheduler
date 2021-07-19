@@ -13,8 +13,6 @@ def app():
 
 @pytest.fixture(scope='session', autouse=True)
 def db():
-    db = app_factory.get_db()
-    print(db)
     return app_factory.get_db()
 
 

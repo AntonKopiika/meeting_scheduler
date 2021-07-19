@@ -1,5 +1,6 @@
 import http
 import json
+from meeting_scheduler.src.models import Meeting
 
 
 def test_get_meetings_with_db(test_client):
@@ -41,7 +42,7 @@ def test_get_meeting_by_id_with_db(test_client, test_meeting):
     assert response.json["title"] == test_meeting.title
 
 
-def test_put_meeting_with_db(test_client, test_meeting, db_population):
+def test_put_meeting_with_db(test_client, test_meeting, db_population, db):
     data = {
         "host": db_population["users"][1].id,
         "participants": [db_population["users"][2].id, db_population["users"][3].id],
@@ -55,6 +56,7 @@ def test_put_meeting_with_db(test_client, test_meeting, db_population):
     }
     response = test_client.put(f"/meeting/{test_meeting.id}", content_type="application/json", data=json.dumps(data))
 
+    assert db.session.query(Meeting).count() == 2
     assert response.status_code == http.HTTPStatus.OK
     assert response.json["title"] == "another title"
 
