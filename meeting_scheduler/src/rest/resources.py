@@ -84,7 +84,8 @@ class MeetingApi(Resource):
         if not meeting:
             return "", 404
         new_meeting = self.meeting_schema.deserialize(request.json)
-        if new_meeting and new_meeting.check_overlaps(meeting_to_update=meeting):
+        if new_meeting and new_meeting.\
+                check_overlaps(meeting_to_update=meeting):
             update_json = {
                 "host_id": new_meeting.host.id,
                 "participants": new_meeting.participants,
