@@ -12,8 +12,8 @@ def test_post_meeting_with_db(test_client, db_population):
     data = {
         "host": db_population["users"][1].id,
         "participants": [db_population["users"][2].id],
-        "meeting_start_time": "2021-07-07T12:10:44.126104",
-        "meeting_end_time": "2021-07-07T12:10:44.126104",
+        "meeting_start_time": "2021-07-07T15:10:44.126104",
+        "meeting_end_time": "2021-07-07T16:10:44.126104",
         "host_id": db_population["users"][1].id,
         "title": "title",
         "details": "teems",
@@ -23,6 +23,22 @@ def test_post_meeting_with_db(test_client, db_population):
     response = test_client.post("/meeting", content_type="application/json", data=json.dumps(data))
     assert response.status_code == http.HTTPStatus.CREATED
     assert response.json["title"] == "title"
+
+
+def test_check_meeting_overlap(test_client, db_population):
+    data = {
+        "host": db_population["users"][1].id,
+        "participants": [db_population["users"][2].id],
+        "meeting_start_time": "2021-07-07T12:10:44.126104",
+        "meeting_end_time": "2021-07-07T12:10:44.126104",
+        "host_id": db_population["users"][1].id,
+        "title": "title",
+        "details": "teems",
+        "comment": "comment",
+        "link": "link"
+    }
+    response = test_client.post("/meeting", content_type="application/json", data=json.dumps(data))
+    assert response.status_code == http.HTTPStatus.BAD_REQUEST
 
 
 def test_post_wrong_data_meeting_with_db(test_client):
@@ -44,11 +60,11 @@ def test_get_meeting_by_id_with_db(test_client, test_meeting):
 
 def test_put_meeting_with_db(test_client, test_meeting, db_population, db):
     data = {
-        "host": db_population["users"][1].id,
+        "host": db_population["users"][0].id,
         "participants": [db_population["users"][2].id, db_population["users"][3].id],
         "meeting_start_time": "2021-07-07T12:10:44.126104",
         "meeting_end_time": "2021-07-07T12:10:44.126104",
-        "host_id": db_population["users"][1].id,
+        "host_id": db_population["users"][0].id,
         "title": "another title",
         "details": "teems",
         "comment": "comment",

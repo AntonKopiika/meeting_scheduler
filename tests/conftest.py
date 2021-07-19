@@ -34,11 +34,12 @@ def db_population(db):
         db.session.add(user)
     db.session.commit()
     users_from_db = db.session.query(User).filter(User.username.like("testuser%")).all()
+    date_format = "%Y-%m-%d %H:%M:%S"
     meetings = [
         Meeting(
             host_id=users_from_db[0].id,
-            meeting_start_time=datetime.now(),
-            meeting_end_time=datetime.now(),
+            meeting_start_time=datetime.strptime("2021-07-07 11:59:11", date_format),
+            meeting_end_time=datetime.strptime("2021-07-07 12:59:11", date_format),
             title="test title",
             comment="comment",
             link="link",
@@ -48,9 +49,15 @@ def db_population(db):
     ]
 
     timeslots = [
-        Timeslot(start_time=datetime.now(), end_time=datetime.now(), user_id=users_from_db[0].id),
-        Timeslot(start_time=datetime.now(), end_time=datetime.now(), user_id=users_from_db[1].id),
-        Timeslot(start_time=datetime.now(), end_time=datetime.now(), user_id=users_from_db[2].id)
+        Timeslot(start_time=datetime.strptime("2021-07-07 11:59:11", date_format),
+                 end_time=datetime.strptime("2021-07-07 12:59:11", date_format),
+                 user_id=users_from_db[0].id),
+        Timeslot(start_time=datetime.strptime("2021-07-07 11:59:11", date_format),
+                 end_time=datetime.strptime("2021-07-07 12:59:11", date_format),
+                 user_id=users_from_db[1].id),
+        Timeslot(start_time=datetime.strptime("2021-07-07 11:59:11", date_format),
+                 end_time=datetime.strptime("2021-07-07 12:59:11", date_format),
+                 user_id=users_from_db[2].id)
     ]
     for meeting in meetings:
         db.session.add(meeting)
@@ -72,8 +79,6 @@ def db_population(db):
 
 @pytest.fixture(scope="session")
 def test_user(db_population):
-    user = db_population["users"][0]
-    print(user.id)
     return db_population["users"][0]
 
 

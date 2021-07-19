@@ -1,3 +1,4 @@
+from datetimerange import DateTimeRange
 from flask_bcrypt import Bcrypt
 from flask_sqlalchemy import SQLAlchemy
 
@@ -77,6 +78,23 @@ class Meeting(db.Model):
         lazy='subquery',
         backref=db.backref('invitations', lazy=True)
     )
+
+    def check_overlaps(self, meeting_to_update=None):
+        host = self.host
+        host_meetings = [m for m in host.meetings + host.invitations if m != meeting_to_update]
+        for h_meeting in host_meetings:
+            if DateTimeRange(h_meeting.meeting_start_time, h_meeting.meeting_end_time).is_intersection(
+                    DateTimeRange(self.meeting_start_time, self.meeting_end_time)):
+                return False
+        participants = self.participants
+        for participant in participants:
+            participant_meetings = [meeting for meeting in participant.meetings + participant.invitations if
+                                    meeting != meeting]
+            for p_meeting in participant_meetings:
+                if DateTimeRange(p_meeting.meeting_start_time, p_meeting.meeting_end_time).is_intersection(
+                        DateTimeRange(self.meeting_start_time, self.meeting_end_time)):
+                    return False
+        return True
 
     def __repr__(self):
         return f'<Meeting: {self.meeting_start_time}' \

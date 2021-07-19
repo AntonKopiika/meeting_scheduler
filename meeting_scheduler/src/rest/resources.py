@@ -74,7 +74,7 @@ class MeetingApi(Resource):
 
     def post(self):
         meeting = self.meeting_schema.deserialize(request.json)
-        if meeting:
+        if meeting and meeting.check_overlaps():
             self.meeting_db_service.add(meeting)
             return self.meeting_schema.dump(meeting), 201
         return "", 400
@@ -84,7 +84,7 @@ class MeetingApi(Resource):
         if not meeting:
             return "", 404
         new_meeting = self.meeting_schema.deserialize(request.json)
-        if new_meeting:
+        if new_meeting and new_meeting.check_overlaps(meeting_to_update=meeting):
             update_json = {
                 "host_id": new_meeting.host.id,
                 "participants": new_meeting.participants,

@@ -32,7 +32,6 @@ class CRUDService:
             instance: Union[User, Meeting, Timeslot],
             update_json: dict
     ):
-        self.db.session.rollback()
         if isinstance(instance, User):
             update_json["password"] = bcrypt.\
                 generate_password_hash(update_json["password"]).\
