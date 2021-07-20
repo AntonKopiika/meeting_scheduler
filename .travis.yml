@@ -1,0 +1,13 @@
+language: python
+python:
+  - "3.9"
+
+install:
+  - pip install -e .
+  - pip install flake8
+  - pip install isort
+before_script:
+  - isort meeting_scheduler -c -v
+  - flake8 --ignore E402,F401 --max-line-length 88 meeting_scheduler
+script:
+  - pytest
