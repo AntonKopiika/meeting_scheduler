@@ -1,6 +1,5 @@
 from meeting_scheduler.src import app_factory
-from meeting_scheduler.src.rest.resources import (MeetingApi, Smoke,
-                                                  TimeslotApi, UserApi)
+from meeting_scheduler.src.rest.resources import MeetingApi, Smoke, TimeslotApi, UserApi
 
 api = app_factory.get_api()
 

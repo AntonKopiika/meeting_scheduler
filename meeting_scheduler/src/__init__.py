@@ -1,10 +1,10 @@
 import os
 
 import injections
+from containers import AppContainer
 from flask import Flask
 from flask_restful import Api
 
-from containers import AppContainer
 from meeting_scheduler.src.models import bcrypt, db
 
 

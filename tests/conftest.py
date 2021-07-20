@@ -1,8 +1,9 @@
+from datetime import datetime
+
 import pytest
 
 from meeting_scheduler.src import app_factory
-from meeting_scheduler.src.models import User, Meeting, Timeslot, participants
-from datetime import datetime
+from meeting_scheduler.src.models import Meeting, Timeslot, User, participants
 
 
 @pytest.fixture(scope='session')
@@ -50,13 +51,13 @@ def db_population(db):
 
     timeslots = [
         Timeslot(start_time=datetime.strptime("2021-07-07 11:59:11", date_format),
-                 end_time=datetime.strptime("2021-07-07 12:59:11", date_format),
+                 end_time=datetime.strptime("2021-07-07 15:59:11", date_format),
                  user_id=users_from_db[0].id),
         Timeslot(start_time=datetime.strptime("2021-07-07 11:59:11", date_format),
-                 end_time=datetime.strptime("2021-07-07 12:59:11", date_format),
+                 end_time=datetime.strptime("2021-07-07 15:59:11", date_format),
                  user_id=users_from_db[1].id),
         Timeslot(start_time=datetime.strptime("2021-07-07 11:59:11", date_format),
-                 end_time=datetime.strptime("2021-07-07 12:59:11", date_format),
+                 end_time=datetime.strptime("2021-07-07 15:59:11", date_format),
                  user_id=users_from_db[2].id)
     ]
     for meeting in meetings:
