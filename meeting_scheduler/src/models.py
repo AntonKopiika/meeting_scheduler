@@ -116,6 +116,18 @@ class Meeting(db.Model):
                     return False
         return True
 
+    def check_participants_timeslots(self):
+        return all(list(map(self._check_user_free_time, self.participants)))
+
+    def _check_user_free_time(self, user):
+
+        for slot in user.timeslots:
+            timeslot = DateTimeRange(slot.start_time, slot.end_time)
+            if self.meeting_start_time in timeslot \
+                    and self.meeting_end_time in timeslot:
+                return True
+        return False
+
     def __repr__(self):
         return f'<Meeting: {self.meeting_start_time}' \
                f'-{self.meeting_start_time} for {self.host}>'
