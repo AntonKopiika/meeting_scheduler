@@ -1,4 +1,3 @@
-from datetimerange import DateTimeRange
 from flask_bcrypt import Bcrypt
 from flask_sqlalchemy import SQLAlchemy
 
@@ -42,19 +41,6 @@ class Timeslot(db.Model):
     end_time = db.Column(db.DateTime, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
-    def check_overlaps(self, timeslot_to_update=None):
-        user = self.user
-        user_timeslots = \
-            [timeslot for timeslot in user.timeslots
-             if timeslot != timeslot_to_update]
-        for timeslot in user_timeslots:
-            if DateTimeRange(timeslot.start_time,
-                             timeslot.end_time).is_intersection(
-                DateTimeRange(self.start_time,
-                              self.end_time)):
-                return False
-        return True
-
     def __repr__(self):
         return f'<Timeslot: {self.start_time}-{self.end_time} for {self.user}>'
 
@@ -91,42 +77,6 @@ class Meeting(db.Model):
         lazy='subquery',
         backref=db.backref('invitations', lazy=True)
     )
-
-    def check_overlaps(self, meeting_to_update=None):
-        host = self.host
-        host_meetings = \
-            [m for m in host.meetings + host.invitations
-             if m != meeting_to_update]
-        for h_meeting in host_meetings:
-            if DateTimeRange(h_meeting.meeting_start_time,
-                             h_meeting.meeting_end_time).is_intersection(
-                DateTimeRange(self.meeting_start_time,
-                              self.meeting_end_time)):
-                return False
-        participants = self.participants
-        for participant in participants:
-            participant_meetings = \
-                [meeting for meeting in participant.meetings + participant.invitations
-                 if meeting != meeting]
-            for p_meeting in participant_meetings:
-                if DateTimeRange(p_meeting.meeting_start_time,
-                                 p_meeting.meeting_end_time).is_intersection(
-                    DateTimeRange(self.meeting_start_time,
-                                  self.meeting_end_time)):
-                    return False
-        return True
-
-    def check_participants_timeslots(self):
-        return all(list(map(self._check_user_free_time, self.participants)))
-
-    def _check_user_free_time(self, user):
-
-        for slot in user.timeslots:
-            timeslot = DateTimeRange(slot.start_time, slot.end_time)
-            if self.meeting_start_time in timeslot \
-                    and self.meeting_end_time in timeslot:
-                return True
-        return False
 
     def __repr__(self):
         return f'<Meeting: {self.meeting_start_time}' \
