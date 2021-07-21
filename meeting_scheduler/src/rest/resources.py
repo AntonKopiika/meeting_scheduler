@@ -2,9 +2,12 @@ from flask import request
 from flask_restful import Resource
 
 from meeting_scheduler.src import app_factory
-from meeting_scheduler.src.db_service import CRUDService,\
-    are_participants_have_timeslot, dont_have_timeslot_overlap, \
-    dont_have_meeting_overlap
+from meeting_scheduler.src.db_service import (
+    CRUDService,
+    are_participants_have_timeslot,
+    dont_have_meeting_overlap,
+    dont_have_timeslot_overlap,
+)
 from meeting_scheduler.src.models import Meeting, Timeslot, User
 from meeting_scheduler.src.schemas.meeting import MeetingSchema
 from meeting_scheduler.src.schemas.timeslot import TimeslotSchema
