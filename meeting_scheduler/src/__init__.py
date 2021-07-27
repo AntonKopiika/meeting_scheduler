@@ -17,8 +17,8 @@ def create_app_container(db_uri):
     if app.app_context() is None:
         app.app_context().pop()
     app.app_context().push()
-    if db_uri == "sqlite:///:memory:":
-        db.create_all()
+
+    db.create_all()
     container["app"] = app
     container["db"] = db
     container["bcrypt"] = bcrypt

@@ -34,7 +34,7 @@ def test_get_non_existent_timeslot_with_db(test_client):
 
 def test_put_timeslot_with_db(test_client, db_population, db):
     data = {"start_time": "2021-07-07T12:04:16.721598", "end_time": "2021-07-07T13:59:11.485480", "user": db_population["users"][3].id}
-    response = test_client.put(f"/timeslot/{db_population['users'][3].id}", content_type="application/json", data=json.dumps(data))
+    response = test_client.put(f"/timeslot/{db_population['timeslots'][2].id}", content_type="application/json", data=json.dumps(data))
     assert db.session.query(Timeslot).count() == 4
     assert response.status_code == http.HTTPStatus.OK
     assert response.json["end_time"] == "2021-07-07T13:59:11.485480"
