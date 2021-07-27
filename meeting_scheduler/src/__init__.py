@@ -1,3 +1,5 @@
+import os
+
 import injections
 from flask import Flask
 from flask_restful import Api
@@ -32,11 +34,7 @@ class AppFactory:
             test_container = create_app_container("sqlite:///:memory:")
             self.container = test_container.inject(AppContainer())
         else:
-            db_uri = "postgresql://fthsbvaxhvjxhr:" \
-                     "08a47f5b1894df0372b2a5deccdc9ff" \
-                     "6fc696c0b92b68f6e742ca672a22c8417" \
-                     "@ec2-54-155-87-214.eu-west-1.compute.amazonaws.com" \
-                     ":5432/dbm8lvoo16kvg"
+            db_uri = os.environ.get("DATABASE_URI")
             container = create_app_container(db_uri)
             self.container = container.inject(AppContainer())
 
