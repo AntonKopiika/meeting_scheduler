@@ -15,4 +15,4 @@ script:
   - pytest
 after_success:
   - sh .travis/deploy_dockerhub.sh
-  - test "$TRAVIS_BRANCH" = "dev" && sh .travis/deploy_heroku.sh
+  - sh .travis/deploy_heroku.sh
