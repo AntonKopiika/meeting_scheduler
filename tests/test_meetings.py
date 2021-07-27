@@ -1,5 +1,6 @@
 import http
 import json
+
 from meeting_scheduler.src.models import Meeting
 
 
@@ -10,11 +11,11 @@ def test_get_meetings_with_db(test_client):
 
 def test_post_meeting_with_db(test_client, db_population):
     data = {
-        "host": db_population["users"][1].id,
+        "host": db_population["users"][0].id,
         "participants": [db_population["users"][2].id],
-        "meeting_start_time": "2021-07-07T15:10:44.126104",
-        "meeting_end_time": "2021-07-07T16:10:44.126104",
-        "host_id": db_population["users"][1].id,
+        "meeting_start_time": "2021-07-07T14:10:44.126104",
+        "meeting_end_time": "2021-07-07T15:10:44.126104",
+        "host_id": db_population["users"][0].id,
         "title": "title",
         "details": "teems",
         "comment": "comment",
@@ -61,9 +62,9 @@ def test_get_meeting_by_id_with_db(test_client, test_meeting):
 def test_put_meeting_with_db(test_client, test_meeting, db_population, db):
     data = {
         "host": db_population["users"][0].id,
-        "participants": [db_population["users"][2].id, db_population["users"][3].id],
-        "meeting_start_time": "2021-07-07T12:10:44.126104",
-        "meeting_end_time": "2021-07-07T12:10:44.126104",
+        "participants": [db_population["users"][2].id, db_population["users"][1].id],
+        "meeting_start_time": "2021-07-07T12:00:44.126104",
+        "meeting_end_time": "2021-07-07T12:30:44.126104",
         "host_id": db_population["users"][0].id,
         "title": "another title",
         "details": "teems",

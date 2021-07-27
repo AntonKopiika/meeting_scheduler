@@ -1,13 +1,18 @@
+sudo: required
+services:
+  - docker
 language: python
 python:
   - "3.9"
-
 install:
   - pip install -e .
   - pip install flake8
   - pip install isort
 before_script:
-  - isort meeting_scheduler -c -v
-  - flake8 --ignore E402,F401 --max-line-length 88 meeting_scheduler
+  - isort meeting_scheduler -c
+  - flake8 meeting_scheduler
 script:
   - pytest
+after_success:
+  - sh .travis/deploy_dockerhub.sh
+  - sh .travis/deploy_heroku.sh

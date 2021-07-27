@@ -1,4 +1,6 @@
+import os
+
 from meeting_scheduler.src import app_factory
 
 if __name__ == '__main__':
-    app_factory.get_app().run()
+    app_factory.get_app().run(host="0.0.0.0", port=int(os.getenv('PORT', 5000)))

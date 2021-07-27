@@ -2,7 +2,12 @@ from flask import request
 from flask_restful import Resource
 
 from meeting_scheduler.src import app_factory
-from meeting_scheduler.src.db_service import CRUDService
+from meeting_scheduler.src.db_service import (
+    CRUDService,
+    are_participants_have_timeslot,
+    dont_have_meeting_overlap,
+    dont_have_timeslot_overlap,
+)
 from meeting_scheduler.src.models import Meeting, Timeslot, User
 from meeting_scheduler.src.schemas.meeting import MeetingSchema
 from meeting_scheduler.src.schemas.timeslot import TimeslotSchema
@@ -74,7 +79,8 @@ class MeetingApi(Resource):
 
     def post(self):
         meeting = self.meeting_schema.deserialize(request.json)
-        if meeting and meeting.check_overlaps():
+        if meeting and dont_have_meeting_overlap(meeting) and \
+                are_participants_have_timeslot(meeting):
             self.meeting_db_service.add(meeting)
             return self.meeting_schema.dump(meeting), 201
         return "", 400
@@ -84,8 +90,8 @@ class MeetingApi(Resource):
         if not meeting:
             return "", 404
         new_meeting = self.meeting_schema.deserialize(request.json)
-        if new_meeting and new_meeting. \
-                check_overlaps(meeting_to_update=meeting):
+        if new_meeting and dont_have_meeting_overlap(new_meeting, meeting) and \
+                are_participants_have_timeslot(new_meeting):
             update_json = {
                 "host_id": new_meeting.host.id,
                 "participants": new_meeting.participants,
@@ -123,7 +129,7 @@ class TimeslotApi(Resource):
 
     def post(self):
         timeslot = self.timeslot_schema.deserialize(request.json)
-        if timeslot and timeslot.check_overlaps():
+        if timeslot and dont_have_timeslot_overlap(timeslot):
             self.timeslot_db_service.add(timeslot)
             return self.timeslot_schema.dump(timeslot), 201
         return "", 400
@@ -133,7 +139,7 @@ class TimeslotApi(Resource):
         if not timeslot:
             return "", 404
         new_timeslot = self.timeslot_schema.deserialize(request.json)
-        if new_timeslot and new_timeslot.check_overlaps(timeslot_to_update=timeslot):
+        if new_timeslot and dont_have_timeslot_overlap(new_timeslot, timeslot):
             update_json = {
                 "start_time": new_timeslot.start_time,
                 "end_time": new_timeslot.end_time,
