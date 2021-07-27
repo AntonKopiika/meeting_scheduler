@@ -1,10 +1,8 @@
-import os
-
 import injections
-from containers import AppContainer
 from flask import Flask
 from flask_restful import Api
 
+from meeting_scheduler.containers import AppContainer
 from meeting_scheduler.src.models import bcrypt, db
 
 
@@ -34,7 +32,12 @@ class AppFactory:
             test_container = create_app_container("sqlite:///:memory:")
             self.container = test_container.inject(AppContainer())
         else:
-            container = create_app_container(os.environ.get("DATABASE_URI"))
+            db_uri = "postgresql://fthsbvaxhvjxhr:" \
+                     "08a47f5b1894df0372b2a5deccdc9ff" \
+                     "6fc696c0b92b68f6e742ca672a22c8417" \
+                     "@ec2-54-155-87-214.eu-west-1.compute.amazonaws.com" \
+                     ":5432/dbm8lvoo16kvg"
+            container = create_app_container(db_uri)
             self.container = container.inject(AppContainer())
 
     def get_app(self):
@@ -51,6 +54,6 @@ class AppFactory:
 
 
 app_factory = AppFactory()
-app_factory.set_container(test_service=True)
+app_factory.set_container(test_service=False)
 
 from .rest import routes

@@ -11,8 +11,3 @@ class AppContainer:
     db = injections.depends(SQLAlchemy, "db")
     bcrypt = injections.depends(Bcrypt, "bcrypt")
     api = injections.depends(Api, "api")
-
-
-@injections.has
-class TestContainer:
-    a = injections.depends(int, "a")
