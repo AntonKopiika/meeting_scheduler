@@ -1,4 +1,5 @@
 import os
+
 from meeting_scheduler.src import app_factory
 
 if __name__ == '__main__':
