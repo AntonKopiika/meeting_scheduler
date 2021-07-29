@@ -39,8 +39,8 @@ def db_population(db):
     meetings = [
         Meeting(
             host_id=users_from_db[0].id,
-            meeting_start_time=datetime.strptime("2021-07-07 11:59:11", date_format),
-            meeting_end_time=datetime.strptime("2021-07-07 12:59:11", date_format),
+            meeting_start_time=datetime.strptime("2021-07-07 12:00:00", date_format),
+            meeting_end_time=datetime.strptime("2021-07-07 13:00:00", date_format),
             title="test title",
             comment="comment",
             link="link",
@@ -50,14 +50,14 @@ def db_population(db):
     ]
 
     timeslots = [
-        Timeslot(start_time=datetime.strptime("2021-07-07 11:59:11", date_format),
-                 end_time=datetime.strptime("2021-07-07 15:59:11", date_format),
+        Timeslot(start_time=datetime.strptime("2021-07-07 12:00:00", date_format),
+                 end_time=datetime.strptime("2021-07-07 16:00:00", date_format),
                  user_id=users_from_db[0].id),
-        Timeslot(start_time=datetime.strptime("2021-07-07 11:59:11", date_format),
-                 end_time=datetime.strptime("2021-07-07 15:59:11", date_format),
+        Timeslot(start_time=datetime.strptime("2021-07-07 12:00:00", date_format),
+                 end_time=datetime.strptime("2021-07-07 16:00:00", date_format),
                  user_id=users_from_db[1].id),
-        Timeslot(start_time=datetime.strptime("2021-07-07 11:59:11", date_format),
-                 end_time=datetime.strptime("2021-07-07 15:59:11", date_format),
+        Timeslot(start_time=datetime.strptime("2021-07-07 12:00:00", date_format),
+                 end_time=datetime.strptime("2021-07-07 16:00:00", date_format),
                  user_id=users_from_db[2].id)
     ]
     for meeting in meetings:

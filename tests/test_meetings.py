@@ -13,8 +13,8 @@ def test_post_meeting_with_db(test_client, db_population):
     data = {
         "host": db_population["users"][0].id,
         "participants": [db_population["users"][2].id],
-        "meeting_start_time": "2021-07-07T14:10:44.126104",
-        "meeting_end_time": "2021-07-07T15:10:44.126104",
+        "meeting_start_time": "2021-07-07T14:00:00",
+        "meeting_end_time": "2021-07-07T15:00:00",
         "host_id": db_population["users"][0].id,
         "title": "title",
         "details": "teems",
@@ -30,8 +30,8 @@ def test_check_meeting_overlap(test_client, db_population):
     data = {
         "host": db_population["users"][1].id,
         "participants": [db_population["users"][2].id],
-        "meeting_start_time": "2021-07-07T12:10:44.126104",
-        "meeting_end_time": "2021-07-07T12:10:44.126104",
+        "meeting_start_time": "2021-07-07T12:00:00",
+        "meeting_end_time": "2021-07-07T12:15:00",
         "host_id": db_population["users"][1].id,
         "title": "title",
         "details": "teems",
@@ -59,12 +59,18 @@ def test_get_meeting_by_id_with_db(test_client, test_meeting):
     assert response.json["title"] == test_meeting.title
 
 
+def test_get_meeting_by_user_id_with_db(test_client, test_user):
+    response = test_client.get(f"/meeting?user={test_user.id}&start=2021-7-1&end=2021-8-1")
+    assert response.status_code == http.HTTPStatus.OK
+    assert len(response.json) == 2
+
+
 def test_put_meeting_with_db(test_client, test_meeting, db_population, db):
     data = {
         "host": db_population["users"][0].id,
         "participants": [db_population["users"][2].id, db_population["users"][1].id],
-        "meeting_start_time": "2021-07-07T12:00:44.126104",
-        "meeting_end_time": "2021-07-07T12:30:44.126104",
+        "meeting_start_time": "2021-07-07T12:00:00",
+        "meeting_end_time": "2021-07-07T12:30:00",
         "host_id": db_population["users"][0].id,
         "title": "another title",
         "details": "teems",

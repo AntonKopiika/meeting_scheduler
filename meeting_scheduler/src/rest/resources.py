@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from flask import request
 from flask_restful import Resource
 
@@ -7,11 +9,13 @@ from meeting_scheduler.src.db_service import (
     are_participants_have_timeslot,
     dont_have_meeting_overlap,
     dont_have_timeslot_overlap,
+    get_user_meetings,
 )
 from meeting_scheduler.src.models import Meeting, Timeslot, User
 from meeting_scheduler.src.schemas.meeting import MeetingSchema
 from meeting_scheduler.src.schemas.timeslot import TimeslotSchema
 from meeting_scheduler.src.schemas.user import UserSchema
+from meeting_scheduler.src.utils import get_free_timeslots
 
 db = app_factory.get_db()
 
@@ -70,6 +74,14 @@ class MeetingApi(Resource):
 
     def get(self, meeting_id: int = None):
         if meeting_id is None:
+            user_id = request.args.get("user")
+            start = request.args.get("start")
+            end = request.args.get("end")
+            if all([user_id, start, end]):
+                start = datetime.strptime(start, "%Y-%m-%d")
+                end = datetime.strptime(end, "%Y-%m-%d")
+                meetings = get_user_meetings(int(user_id), start, end)
+                return self.meeting_schema.dump(meetings, many=True), 200
             meetings = self.meeting_db_service.get_all()
             return self.meeting_schema.dump(meetings, many=True), 200
         meeting = self.meeting_db_service.get(meeting_id)
@@ -120,6 +132,13 @@ class TimeslotApi(Resource):
 
     def get(self, timeslot_id: int = None):
         if timeslot_id is None:
+            user_id = request.args.get("user")
+            start = request.args.get("start")
+            end = request.args.get("end")
+            if all([user_id, start, end]):
+                start = datetime.strptime(start, "%Y-%m-%d")
+                end = datetime.strptime(end, "%Y-%m-%d")
+                return get_free_timeslots(int(user_id), start, end), 200
             timeslots = self.timeslot_db_service.get_all()
             return self.timeslot_schema.dump(timeslots, many=True), 200
         timeslot = self.timeslot_db_service.get(timeslot_id)

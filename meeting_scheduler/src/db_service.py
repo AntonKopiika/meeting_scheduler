@@ -1,7 +1,9 @@
+from datetime import date, datetime
 from typing import List, Type, Union
 
 from datetimerange import DateTimeRange
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import and_
 
 from meeting_scheduler.src import app_factory
 from meeting_scheduler.src.models import Meeting, Timeslot, User
@@ -58,6 +60,31 @@ def are_participants_have_timeslot(meeting: Meeting):
         return False
 
     return all(map(is_user_have_free_time, meeting.participants))
+
+
+def get_user_meetings(user_id: int, start_date: date, end_date: date):
+    user = User.query.get_or_404(user_id)
+    all_meetings = user.meetings + user.invitations
+    meetings = [
+        meeting for meeting in all_meetings if
+        datetime.fromordinal(
+            start_date.toordinal()
+        ) <= meeting.meeting_start_time <= datetime.fromordinal(
+            end_date.toordinal()
+        )
+    ]
+    return meetings
+
+
+def get_user_timeslots(user_id: int, start_date: date, end_date: date):
+    timeslots = Timeslot.query.filter(
+        and_(
+            Timeslot.user_id == user_id,
+            Timeslot.start_time >= start_date,
+            Timeslot.start_time <= end_date
+        )
+    ).all()
+    return timeslots
 
 
 class CRUDService:
