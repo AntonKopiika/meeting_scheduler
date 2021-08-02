@@ -52,6 +52,6 @@ class AppFactory:
 
 
 app_factory = AppFactory()
-app_factory.set_container(test_service=True)
+app_factory.set_container(test_service=False)
 
 from .rest import routes
