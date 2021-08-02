@@ -1,4 +1,4 @@
-from marshmallow import Schema, fields, post_load, ValidationError
+from marshmallow import Schema, ValidationError, fields, post_load
 
 
 class Request:
