@@ -5,9 +5,9 @@ from datetimerange import DateTimeRange
 from meeting_scheduler.src.db_service import get_user_meetings, get_user_timeslots
 
 
-def get_free_timeslots(user_id: int, start_date: date, end_date: date):
-    timeslots = get_user_timeslots(user_id, start_date, end_date)
-    meetings = get_user_meetings(user_id, start_date, end_date)
+def get_free_timeslots(req):
+    timeslots = get_user_timeslots(req.user, req.start, req.end)
+    meetings = get_user_meetings(req)
     meeting_slots = [DateTimeRange(
         meeting.meeting_start_time,
         meeting.meeting_end_time) for meeting in meetings]

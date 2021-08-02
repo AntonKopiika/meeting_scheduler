@@ -7,6 +7,7 @@ from sqlalchemy import and_
 
 from meeting_scheduler.src import app_factory
 from meeting_scheduler.src.models import Meeting, Timeslot, User
+from meeting_scheduler.src.schemas.request import Request
 
 bcrypt = app_factory.get_bcrypt()
 
@@ -62,15 +63,15 @@ def are_participants_have_timeslot(meeting: Meeting):
     return all(map(is_user_have_free_time, meeting.participants))
 
 
-def get_user_meetings(user_id: int, start_date: date, end_date: date):
-    user = User.query.get_or_404(user_id)
+def get_user_meetings(request: Request):
+    user = User.query.get_or_404(request.user)
     all_meetings = user.meetings + user.invitations
     meetings = [
         meeting for meeting in all_meetings if
         datetime.fromordinal(
-            start_date.toordinal()
+            request.start.toordinal()
         ) <= meeting.meeting_start_time <= datetime.fromordinal(
-            end_date.toordinal()
+            request.end.toordinal()
         )
     ]
     return meetings

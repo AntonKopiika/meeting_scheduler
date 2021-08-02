@@ -13,6 +13,7 @@ from meeting_scheduler.src.db_service import (
 )
 from meeting_scheduler.src.models import Meeting, Timeslot, User
 from meeting_scheduler.src.schemas.meeting import MeetingSchema
+from meeting_scheduler.src.schemas.request import RequestSchema
 from meeting_scheduler.src.schemas.timeslot import TimeslotSchema
 from meeting_scheduler.src.schemas.user import UserSchema
 from meeting_scheduler.src.utils import get_free_timeslots
@@ -70,18 +71,16 @@ class UserApi(Resource):
 
 class MeetingApi(Resource):
     meeting_schema = MeetingSchema()
+    request_schema = RequestSchema()
     meeting_db_service = CRUDService(Meeting, db)
 
     def get(self, meeting_id: int = None):
         if meeting_id is None:
-            user_id = request.args.get("user")
-            start = request.args.get("start")
-            end = request.args.get("end")
-            if all([user_id, start, end]):
-                start = datetime.strptime(start, "%Y-%m-%d")
-                end = datetime.strptime(end, "%Y-%m-%d")
-                meetings = get_user_meetings(int(user_id), start, end)
-                return self.meeting_schema.dump(meetings, many=True), 200
+            if request.args:
+                req = self.request_schema.get_request(request.args)
+                if req:
+                    meetings = get_user_meetings(req)
+                    return self.meeting_schema.dump(meetings, many=True), 200
             meetings = self.meeting_db_service.get_all()
             return self.meeting_schema.dump(meetings, many=True), 200
         meeting = self.meeting_db_service.get(meeting_id)
@@ -128,17 +127,15 @@ class MeetingApi(Resource):
 
 class TimeslotApi(Resource):
     timeslot_schema = TimeslotSchema()
+    request_schema = RequestSchema()
     timeslot_db_service = CRUDService(Timeslot, db)
 
     def get(self, timeslot_id: int = None):
         if timeslot_id is None:
-            user_id = request.args.get("user")
-            start = request.args.get("start")
-            end = request.args.get("end")
-            if all([user_id, start, end]):
-                start = datetime.strptime(start, "%Y-%m-%d")
-                end = datetime.strptime(end, "%Y-%m-%d")
-                return get_free_timeslots(int(user_id), start, end), 200
+            if request.args:
+                req = self.request_schema.get_request(request.args)
+                if req:
+                    return get_free_timeslots(req), 200
             timeslots = self.timeslot_db_service.get_all()
             return self.timeslot_schema.dump(timeslots, many=True), 200
         timeslot = self.timeslot_db_service.get(timeslot_id)

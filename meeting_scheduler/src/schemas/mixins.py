@@ -12,5 +12,6 @@ class DeserializationMixin:
             instance = self.load(json)
             db.session.rollback()
         except ValidationError as err:
+            # TODO: make logging error
             print({"message": str(err)})
         return instance
