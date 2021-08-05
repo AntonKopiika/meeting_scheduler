@@ -48,7 +48,7 @@ def create_event(
     if is_online_meeting:
         json["isOnlineMeeting"] = is_online_meeting,
         json["onlineMeetingProvider"] = online_meeting_provider
-    graph_data = requests.post(  # Use token to call downstream service
+    graph_data = requests.post(
         app_config.ENDPOINT,
         headers=headers,
         json=json
@@ -57,7 +57,7 @@ def create_event(
 
 
 def get_event(token, event_id=None):
-    graph_data = requests.get(  # Use token to call downstream service
+    graph_data = requests.get(
         app_config.ENDPOINT + event_id if event_id else app_config.ENDPOINT,
         headers={'Authorization': 'Bearer ' + token['access_token']},
     ).json()
@@ -96,7 +96,7 @@ def update_event(
     if is_online_meeting:
         json["isOnlineMeeting"] = is_online_meeting,
         json["onlineMeetingProvider"] = online_meeting_provider
-    graph_data = requests.patch(  # Use token to call downstream service
+    graph_data = requests.patch(
         app_config.ENDPOINT + event_id,
         headers={'Authorization': 'Bearer ' + token['access_token']},
         json=json
@@ -105,7 +105,7 @@ def update_event(
 
 
 def delete_event(token, event_id):
-    graph_data = requests.delete(  # Use token to call downstream service
+    graph_data = requests.delete(
         app_config.ENDPOINT + event_id,
         headers={'Authorization': 'Bearer ' + token['access_token']},
     ).status_code

@@ -4,7 +4,7 @@ import msal
 import outlook_calendar_service.app_config as app_config
 from flask import redirect, render_template, request, session, url_for
 from flask_session import Session
-from outlook_calendar_service.calendar_api import get_event, update_event
+from outlook_calendar_service.calendar_api import get_event
 
 from meeting_scheduler.src import app_factory
 
@@ -39,15 +39,15 @@ def authorized():
             return render_template("auth_error.html", result=result)
         session["user"] = result.get("id_token_claims")
         _save_cache(cache)
-    except ValueError:  # Usually caused by CSRF
-        pass  # Simply ignore them
+    except ValueError:
+        pass
     return redirect(url_for("index"))
 
 
 @app.route("/logout")
 def logout():
-    session.clear()  # Wipe out user and its token cache from session
-    return redirect(  # Also logout from your tenant's web session
+    session.clear()
+    return redirect(
         app_config.AUTHORITY + "/oauth2/v2.0/logout" + \
         "?post_logout_redirect_uri=" + url_for("index", _external=True))
 
@@ -86,10 +86,10 @@ def _build_auth_code_flow(authority=None, scopes=None):
 
 
 def _get_token_from_cache(scope=None):
-    cache = _load_cache()  # This web app maintains one cache per session
+    cache = _load_cache()
     cca = _build_msal_app(cache=cache)
     accounts = cca.get_accounts()
-    if accounts:  # So all account(s) belong to the current signed-in user
+    if accounts:
         result = cca.acquire_token_silent(scope, account=accounts[0])
         _save_cache(cache)
         return result
