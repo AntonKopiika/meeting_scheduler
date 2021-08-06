@@ -4,7 +4,7 @@ import msal
 import outlook_calendar_service.app_config as app_config
 from flask import redirect, render_template, request, session, url_for
 from flask_session import Session
-from flask_sslify import SSLify
+from flask_talisman import Talisman
 from outlook_calendar_service.calendar_api import get_event
 
 from meeting_scheduler.src import app_factory
@@ -13,7 +13,7 @@ app = app_factory.get_app()
 app.config.from_object(app_config)
 Session(app)
 if "DYNO" in os.environ:
-    sslify = SSLify(app)
+    Talisman(app)
 
 
 @app.route("/")
