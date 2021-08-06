@@ -4,6 +4,7 @@ import msal
 import outlook_calendar_service.app_config as app_config
 from flask import redirect, render_template, request, session, url_for
 from flask_session import Session
+from flask_sslify import SSLify
 from outlook_calendar_service.calendar_api import get_event
 
 from meeting_scheduler.src import app_factory
@@ -11,6 +12,8 @@ from meeting_scheduler.src import app_factory
 app = app_factory.get_app()
 app.config.from_object(app_config)
 Session(app)
+if "DYNO" in os.environ:
+    sslify = SSLify(app)
 
 
 @app.route("/")
@@ -96,4 +99,4 @@ def _get_token_from_cache(scope=None):
 
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=int(os.getenv('PORT', 5000)), ssl_context="adhoc")
+    app.run(host="0.0.0.0", port=int(os.getenv('PORT', 5000)))
