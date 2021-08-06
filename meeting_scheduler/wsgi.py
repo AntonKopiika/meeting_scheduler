@@ -99,7 +99,4 @@ def _get_token_from_cache(scope=None):
 
 
 if __name__ == '__main__':
-    # app.run(host="0.0.0.0", port=int(os.getenv('PORT', 5000)))
-    from waitress import serve
-
-    serve(app, listen='0.0.0.0:5000', url_scheme='https')
+    app.run(host="0.0.0.0", port=int(os.getenv('PORT', 5000)))
