@@ -2,17 +2,14 @@ import os
 
 CLIENT_ID = "11cbfe8a-6c4f-4fde-86c3-0c39fce7413d"
 
-CLIENT_SECRET = "dQb2BbHyW3..632L7tDb.9j8a1-gi57e6L"
-
-# CLIENT_SECRET = os.environ.get("OUTLOOK_APP_SECRET")
-if not CLIENT_SECRET:
-    raise ValueError("Need to define CLIENT_SECRET environment variable")
+CLIENT_SECRET = os.getenv("OUTLOOK_APP_SECRET")
 
 AUTHORITY = "https://login.microsoftonline.com/common"
 
 REDIRECT_PATH = "/getAToken"
 
-ENDPOINT = 'https://graph.microsoft.com/v1.0/me/events/'
+USER_ENDPOINT = "https://graph.microsoft.com/v1.0/me/"
+EVENT_ENDPOINT = f'{USER_ENDPOINT}events/'
 
-SCOPE = ["Calendars.ReadWrite"]
+SCOPE = ["Calendars.ReadWrite", "User.Read"]
 SESSION_TYPE = "filesystem"

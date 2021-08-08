@@ -7,8 +7,8 @@
     <h1>Outlook calendar api</h1>
     <h2>Welcome {{ user.get("name") }}!</h2>
 
-    {% if config.get("ENDPOINT") %}
-      <li><a href='/graphcall'>Get user events</a></li>
+    {% if config.get("USER_ENDPOINT") %}
+      <li><a href='/graphcall'>Get user data</a></li>
     {% endif %}
 
     <li><a href="/logout">Logout</a></li>

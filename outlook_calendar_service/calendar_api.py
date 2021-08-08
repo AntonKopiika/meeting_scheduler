@@ -3,6 +3,14 @@ import requests
 from outlook_calendar_service import app_config
 
 
+def get_user(token):
+    graph_data = requests.get(
+        app_config.USER_ENDPOINT,
+        headers={'Authorization': 'Bearer ' + token['access_token']},
+    ).json()
+    return graph_data
+
+
 def create_event(
         token,
         title,
@@ -49,7 +57,7 @@ def create_event(
         json["isOnlineMeeting"] = is_online_meeting,
         json["onlineMeetingProvider"] = online_meeting_provider
     graph_data = requests.post(
-        app_config.ENDPOINT,
+        app_config.EVENT_ENDPOINT,
         headers=headers,
         json=json
     ).json()
@@ -58,7 +66,7 @@ def create_event(
 
 def get_event(token, event_id=None):
     graph_data = requests.get(
-        app_config.ENDPOINT + event_id if event_id else app_config.ENDPOINT,
+        app_config.EVENT_ENDPOINT + event_id if event_id else app_config.EVENT_ENDPOINT,
         headers={'Authorization': 'Bearer ' + token['access_token']},
     ).json()
     return graph_data
@@ -97,7 +105,7 @@ def update_event(
         json["isOnlineMeeting"] = is_online_meeting,
         json["onlineMeetingProvider"] = online_meeting_provider
     graph_data = requests.patch(
-        app_config.ENDPOINT + event_id,
+        app_config.EVENT_ENDPOINT + event_id,
         headers={'Authorization': 'Bearer ' + token['access_token']},
         json=json
     ).json()
@@ -106,7 +114,7 @@ def update_event(
 
 def delete_event(token, event_id):
     graph_data = requests.delete(
-        app_config.ENDPOINT + event_id,
+        app_config.EVENT_ENDPOINT + event_id,
         headers={'Authorization': 'Bearer ' + token['access_token']},
     ).status_code
     return graph_data

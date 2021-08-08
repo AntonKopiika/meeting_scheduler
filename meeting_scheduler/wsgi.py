@@ -5,15 +5,13 @@ import outlook_calendar_service.app_config as app_config
 from flask import redirect, render_template, request, session, url_for
 from flask_session import Session
 from flask_talisman import Talisman
-from outlook_calendar_service.calendar_api import get_event
+from outlook_calendar_service.calendar_api import get_user
 
 from meeting_scheduler.src import app_factory
 
 app = app_factory.get_app()
 app.config.from_object(app_config)
 Session(app)
-if "DYNO" in os.environ:
-    Talisman(app)
 
 
 @app.route("/")
@@ -60,7 +58,7 @@ def graphcall():
     token = _get_token_from_cache(app_config.SCOPE)
     if not token:
         return redirect(url_for("login"))
-    graph_data = get_event(token)
+    graph_data = get_user(token)
     return render_template('display.html', result=graph_data)
 
 
@@ -85,7 +83,7 @@ def _build_msal_app(cache=None, authority=None):
 def _build_auth_code_flow(authority=None, scopes=None):
     return _build_msal_app(authority=authority).initiate_auth_code_flow(
         scopes or [],
-        redirect_uri="https://www.mymeeeting.com/getAToken")
+        redirect_uri= "http://127.0.0.1:5000/getAToken")
 
 
 def _get_token_from_cache(scope=None):
@@ -99,4 +97,8 @@ def _get_token_from_cache(scope=None):
 
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=int(os.getenv('PORT', 5000)))
+    if "DYNO" in os.environ:
+        Talisman(app)
+        app.run(host="0.0.0.0", port=int(os.getenv('PORT', 5000)))
+    else:
+        app.run(port=int(os.getenv('PORT', 5000)), debug=True)
