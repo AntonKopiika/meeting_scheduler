@@ -83,7 +83,7 @@ def _build_msal_app(cache=None, authority=None):
 def _build_auth_code_flow(authority=None, scopes=None):
     return _build_msal_app(authority=authority).initiate_auth_code_flow(
         scopes or [],
-        redirect_uri="http://127.0.0.1:5000/getAToken")
+        redirect_uri=app_config.REDIRECT_URI)
 
 
 def _get_token_from_cache(scope=None):
