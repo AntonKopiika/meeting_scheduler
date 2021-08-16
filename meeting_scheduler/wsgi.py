@@ -28,7 +28,9 @@ def login():
     session["flow"] = _build_auth_code_flow(scopes=app_config.SCOPE)
     return render_template(
         "login.html",
-        auth_url=session["flow"]["auth_uri"])
+        auth_url=session["flow"]["auth_uri"],
+        vars=os.environ
+    )
 
 
 @app.route(app_config.REDIRECT_PATH)

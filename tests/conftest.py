@@ -3,7 +3,7 @@ from datetime import datetime
 import pytest
 
 from meeting_scheduler.src import app_factory
-from meeting_scheduler.src.models import Meeting, Timeslot, User, participants
+from meeting_scheduler.src.models import Meeting, Timeslot, User, participants, UserCredential
 
 
 @pytest.fixture(scope='session')
@@ -74,6 +74,7 @@ def db_population(db):
     db.session.query(participants).delete()
     db.session.query(Timeslot).delete()
     db.session.query(Meeting).delete()
+    db.session.query(UserCredential).delete()
     db.session.query(User).delete()
     db.session.commit()
 
