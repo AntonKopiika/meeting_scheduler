@@ -34,7 +34,7 @@ class AppFactory:
             test_container = create_app_container("sqlite:///:memory:")
             self.container = test_container.inject(AppContainer())
         else:
-            db_uri = os.getenv("DATABASE_URI")
+            db_uri = os.getenv("DATABASE_URL")
             container = create_app_container(db_uri)
             self.container = container.inject(AppContainer())
 
