@@ -29,7 +29,6 @@ def login():
     return render_template(
         "login.html",
         auth_url=session["flow"]["auth_uri"],
-        vars=os.environ
     )
 
 
