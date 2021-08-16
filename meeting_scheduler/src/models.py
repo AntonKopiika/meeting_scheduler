@@ -22,6 +22,12 @@ class User(db.Model):
         lazy=True,
         cascade="all, delete"
     )
+    creds = db.relationship(
+        'UserCredential',
+        backref='user',
+        lazy=True,
+        cascade="all, delete"
+    )
 
     def __init__(self, username: str, email: str, password: str):
         self.username = username
@@ -81,3 +87,14 @@ class Meeting(db.Model):
     def __repr__(self):
         return f'<Meeting: {self.meeting_start_time}' \
                f'-{self.meeting_start_time} for {self.host}>'
+
+
+class UserCredential(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    cred = db.Column(db.String(256), nullable=False)
+    provider = db.Column(db.String(256), nullable=False)
+    description = db.Column(db.String(256))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+
+    def __repr__(self):
+        return f'<UserCredential: {self.cred} for {self.user_id}>'

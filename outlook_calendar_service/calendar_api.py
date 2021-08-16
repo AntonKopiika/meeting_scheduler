@@ -1,5 +1,4 @@
 import requests
-
 from outlook_calendar_service import app_config
 
 

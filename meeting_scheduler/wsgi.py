@@ -5,6 +5,7 @@ import outlook_calendar_service.app_config as app_config
 from flask import redirect, render_template, request, session, url_for
 from flask_session import Session
 from flask_talisman import Talisman
+from google_secrets_manager_client.encryption import SECRET_ID, get_encryption_key
 from outlook_calendar_service.calendar_api import get_user
 
 from meeting_scheduler.src import app_factory
@@ -12,13 +13,14 @@ from meeting_scheduler.src import app_factory
 app = app_factory.get_app()
 app.config.from_object(app_config)
 Session(app)
+os.environ[SECRET_ID] = get_encryption_key()
 
 
 @app.route("/")
 def index():
     if not session.get("user"):
         return redirect(url_for("login"))
-    return render_template('index.html', user=session["user"], version=msal.__version__)
+    return render_template('index.html', user=session["user"])
 
 
 @app.route("/login")
@@ -26,8 +28,7 @@ def login():
     session["flow"] = _build_auth_code_flow(scopes=app_config.SCOPE)
     return render_template(
         "login.html",
-        auth_url=session["flow"]["auth_uri"],
-        version=msal.__version__)
+        auth_url=session["flow"]["auth_uri"])
 
 
 @app.route(app_config.REDIRECT_PATH)
@@ -36,6 +37,8 @@ def authorized():
         cache = _load_cache()
         result = _build_msal_app(cache=cache).acquire_token_by_auth_code_flow(
             session.get("flow", {}), request.args)
+        # print(result.get("id_token_claims").get("preferred_username"))
+        # print(result.get("refresh_token"))
         if "error" in result:
             return render_template("auth_error.html", result=result)
         session["user"] = result.get("id_token_claims")

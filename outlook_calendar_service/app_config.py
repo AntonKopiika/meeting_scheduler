@@ -1,9 +1,9 @@
 import os
 
-CLIENT_ID = "11cbfe8a-6c4f-4fde-86c3-0c39fce7413d"
+CLIENT_ID = "e5998309-9706-4897-b8b5-efc1ea6cd347"
 
-CLIENT_SECRET = os.getenv("OUTLOOK_APP_SECRET")
-
+# CLIENT_SECRET = os.getenv("OUTLOOK_APP_SECRET")
+CLIENT_SECRET = "U~HTd1xXBRb7U.e3ndj-.8Sib.xSt8yr0Y"
 AUTHORITY = "https://login.microsoftonline.com/common"
 
 REDIRECT_PATH = "/getAToken"

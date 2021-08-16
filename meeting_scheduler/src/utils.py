@@ -1,8 +1,8 @@
-from datetime import date
-
 from datetimerange import DateTimeRange
+from google_secrets_manager_client.encryption import CryptoService
 
 from meeting_scheduler.src.db_service import get_user_meetings, get_user_timeslots
+from meeting_scheduler.src.models import UserCredential
 
 
 def get_free_timeslots(req):
@@ -27,3 +27,18 @@ def get_free_timeslots(req):
         } for slot in all_slots
     ]
     return free_slots
+
+
+def create_user_cred(cred: str, user_id: int, provider: str, description: str = None):
+    crypto_service = CryptoService()
+    return UserCredential(
+        cred=crypto_service.encrypt(cred),
+        user_id=user_id,
+        provider=provider,
+        description=description
+    )
+
+
+def decrypt_user_cred(user_cred: UserCredential):
+    crypto_service = CryptoService()
+    return crypto_service.decrypt(user_cred.cred)
