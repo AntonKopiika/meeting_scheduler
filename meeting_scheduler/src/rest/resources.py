@@ -1,22 +1,14 @@
-from datetime import datetime
-
 from flask import request
 from flask_restful import Resource
 
 from meeting_scheduler.src import app_factory
-from meeting_scheduler.src.db_service import (
-    CRUDService,
-    are_participants_have_timeslot,
-    dont_have_meeting_overlap,
-    dont_have_timeslot_overlap,
-    get_user_meetings,
-)
-from meeting_scheduler.src.models import Meeting, Timeslot, User
+from meeting_scheduler.src.db_service import CRUDService, get_user_meetings
+from meeting_scheduler.src.models import Event, Meeting, User, UserAccount
+from meeting_scheduler.src.schemas.event import EventSchema
 from meeting_scheduler.src.schemas.meeting import MeetingSchema
 from meeting_scheduler.src.schemas.request import RequestSchema
-from meeting_scheduler.src.schemas.timeslot import TimeslotSchema
 from meeting_scheduler.src.schemas.user import UserSchema
-from meeting_scheduler.src.utils import get_free_timeslots
+from meeting_scheduler.src.schemas.user_account import UserAccountSchema
 
 db = app_factory.get_db()
 
@@ -54,7 +46,6 @@ class UserApi(Resource):
         if new_user:
             update_json = {
                 "username": new_user.username,
-                "email": new_user.email,
                 "password": new_user.password
             }
             self.user_db_service.update(user, update_json)
@@ -90,8 +81,7 @@ class MeetingApi(Resource):
 
     def post(self):
         meeting = self.meeting_schema.deserialize(request.json)
-        if meeting and dont_have_meeting_overlap(meeting) and \
-                are_participants_have_timeslot(meeting):
+        if meeting:
             self.meeting_db_service.add(meeting)
             return self.meeting_schema.dump(meeting), 201
         return "", 400
@@ -101,17 +91,16 @@ class MeetingApi(Resource):
         if not meeting:
             return "", 404
         new_meeting = self.meeting_schema.deserialize(request.json)
-        if new_meeting and dont_have_meeting_overlap(new_meeting, meeting) and \
-                are_participants_have_timeslot(new_meeting):
+        if new_meeting:
             update_json = {
                 "host_id": new_meeting.host.id,
-                "participants": new_meeting.participants,
-                "meeting_start_time": new_meeting.meeting_start_time,
-                "meeting_end_time": new_meeting.meeting_end_time,
-                "title": new_meeting.title,
-                "details": new_meeting.details,
+                "event_id": new_meeting.event.id,
+                "start_time": new_meeting.start_time,
+                "calendar_event_id": new_meeting.calendar_event_id,
+                "attendee_name": new_meeting.attendee_name,
+                "attendee_email": new_meeting.attendee_email,
                 "link": new_meeting.link,
-                "comment": new_meeting.comment
+                "additional_info": new_meeting.additional_info
             }
             self.meeting_db_service.update(meeting, update_json)
             return self.meeting_schema.dump(meeting), 200
@@ -125,49 +114,96 @@ class MeetingApi(Resource):
         return "", 404
 
 
-class TimeslotApi(Resource):
-    timeslot_schema = TimeslotSchema()
-    request_schema = RequestSchema()
-    timeslot_db_service = CRUDService(Timeslot, db)
+class UserAccountApi(Resource):
+    account_schema = UserAccountSchema()
+    account_db_service = CRUDService(UserAccount, db)
 
-    def get(self, timeslot_id: int = None):
-        if timeslot_id is None:
-            if request.args:
-                req = self.request_schema.get_request(request.args)
-                if req:
-                    return get_free_timeslots(req), 200
-            timeslots = self.timeslot_db_service.get_all()
-            return self.timeslot_schema.dump(timeslots, many=True), 200
-        timeslot = self.timeslot_db_service.get(timeslot_id)
-        if not timeslot:
+    def get(self, account_id: int = None):
+        if account_id is None:
+            accounts = self.account_db_service.get_all()
+            return self.account_schema.dump(accounts, many=True), 200
+        account = self.account_db_service.get(account_id)
+        if not account:
             return "", 404
-        return self.timeslot_schema.dump(timeslot), 200
+        return self.account_schema.dump(account), 200
 
     def post(self):
-        timeslot = self.timeslot_schema.deserialize(request.json)
-        if timeslot and dont_have_timeslot_overlap(timeslot):
-            self.timeslot_db_service.add(timeslot)
-            return self.timeslot_schema.dump(timeslot), 201
+        account = self.account_schema.deserialize(request.json)
+        if account:
+            self.account_db_service.add(account)
+            return self.account_schema.dump(account), 201
         return "", 400
 
-    def put(self, timeslot_id: int):
-        timeslot = self.timeslot_db_service.get(timeslot_id)
-        if not timeslot:
+    def put(self, account_id: int):
+        account = self.account_db_service.get(account_id)
+        if not account:
             return "", 404
-        new_timeslot = self.timeslot_schema.deserialize(request.json)
-        if new_timeslot and dont_have_timeslot_overlap(new_timeslot, timeslot):
+        new_account = self.account_schema.deserialize(request.json)
+        if new_account:
             update_json = {
-                "start_time": new_timeslot.start_time,
-                "end_time": new_timeslot.end_time,
-                "user": new_timeslot.user.id
+                "email": new_account.email,
+                "cred": new_account.cred,
+                "provider": new_account.provider,
+                "description": new_account.description,
+                "user_id": new_account.user.id
             }
-            self.timeslot_db_service.update(timeslot, update_json)
-            return self.timeslot_schema.dump(timeslot), 200
+            self.account_db_service.update(account, update_json)
+            return self.account_schema.dump(account), 200
         return "", 400
 
-    def delete(self, timeslot_id: int):
-        timeslot = self.timeslot_db_service.get(timeslot_id)
-        if timeslot:
-            self.timeslot_db_service.delete(timeslot)
+    def delete(self, account_id: int):
+        account = self.account_db_service.get(account_id)
+        if account:
+            self.account_db_service.delete(account)
+            return "", 204
+        return "", 404
+
+
+class EventApi(Resource):
+    event_schema = EventSchema()
+    event_db_service = CRUDService(Event, db)
+
+    def get(self, event_id: int = None):
+        if event_id is None:
+            events = self.event_db_service.get_all()
+            return self.event_schema.dump(events, many=True), 200
+        event = self.event_db_service.get(event_id)
+        if not event:
+            return "", 404
+        return self.event_schema.dump(event), 200
+
+    def post(self):
+        event = self.event_schema.deserialize(request.json)
+        if event:
+            self.event_db_service.add(event)
+            return self.event_schema.dump(event), 201
+        return "", 400
+
+    def put(self, event_id: int):
+        event = self.event_db_service.get(event_id)
+        if not event:
+            return "", 404
+        new_event = self.event_schema.deserialize(request.json)
+        if new_event:
+            update_json = {
+                "host_id": new_event.host.id,
+                "title": new_event.title,
+                "start_date": new_event.start_date,
+                "end_date": new_event.end_date,
+                "duration": new_event.duration,
+                "working_days": new_event.working_days,
+                "description": new_event.description,
+                "event_type": new_event.event_type,
+                "start_time": new_event.start_time,
+                "end_time": new_event.end_time
+            }
+            self.event_db_service.update(event, update_json)
+            return self.event_schema.dump(event), 200
+        return "", 400
+
+    def delete(self, event_id: int):
+        event = self.event_db_service.get(event_id)
+        if event:
+            self.event_db_service.delete(event)
             return "", 204
         return "", 404

@@ -1,115 +1,102 @@
-from datetime import date, datetime
+from datetime import datetime, timedelta
 from typing import List, Type, Union
 
 from datetimerange import DateTimeRange
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import and_
 
 from meeting_scheduler.src import app_factory
-from meeting_scheduler.src.models import Meeting, Timeslot, User
+from meeting_scheduler.src.models import Event, Meeting, User, UserAccount
 from meeting_scheduler.src.schemas.request import Request
 
 bcrypt = app_factory.get_bcrypt()
 
 
-def dont_have_timeslot_overlap(timeslot: Timeslot, timeslot_to_update: Timeslot = None):
-    user = timeslot.user
-    user_timeslots = \
-        [timeslot for timeslot in user.timeslots
-         if timeslot != timeslot_to_update]
-    for slot in user_timeslots:
-        if DateTimeRange(slot.start_time,
-                         slot.end_time).is_intersection(
-            DateTimeRange(timeslot.start_time,
-                          timeslot.end_time)):
-            return False
-    return True
-
-
-def dont_have_meeting_overlap(meeting: Meeting, meeting_to_update: Meeting = None):
-    host = meeting.host
-    host_meetings = \
-        [meeting for meeting in host.meetings + host.invitations
-         if meeting != meeting_to_update]
-    for h_meeting in host_meetings:
-        if DateTimeRange(h_meeting.meeting_start_time,
-                         h_meeting.meeting_end_time).is_intersection(
-            DateTimeRange(meeting.meeting_start_time,
-                          meeting.meeting_end_time)):
-            return False
-    participants = meeting.participants
-    for participant in participants:
-        participant_meetings = \
-            [meeting for meeting in participant.meetings + participant.invitations
-             if meeting != meeting]
-        for p_meeting in participant_meetings:
-            if DateTimeRange(p_meeting.meeting_start_time,
-                             p_meeting.meeting_end_time).is_intersection(
-                DateTimeRange(meeting.meeting_start_time,
-                              meeting.meeting_end_time)):
-                return False
-    return True
-
-
-def are_participants_have_timeslot(meeting: Meeting):
-    def is_user_have_free_time(user: User):
-        for slot in user.timeslots:
-            timeslot = DateTimeRange(slot.start_time, slot.end_time)
-            if meeting.meeting_start_time in timeslot \
-                    and meeting.meeting_end_time in timeslot:
-                return True
-        return False
-
-    return all(map(is_user_have_free_time, meeting.participants))
-
-
 def get_user_meetings(request: Request):
     user = User.query.get_or_404(request.user)
-    all_meetings = user.meetings + user.invitations
     meetings = [
-        meeting for meeting in all_meetings if
+        meeting for meeting in user.meetings if
         datetime.fromordinal(
             request.start.toordinal()
-        ) <= meeting.meeting_start_time <= datetime.fromordinal(
+        ) <= meeting.start_time <= datetime.fromordinal(
             request.end.toordinal()
         )
     ]
     return meetings
 
 
-def get_user_timeslots(user_id: int, start_date: date, end_date: date):
-    timeslots = Timeslot.query.filter(
-        and_(
-            Timeslot.user_id == user_id,
-            Timeslot.start_time >= start_date,
-            Timeslot.start_time <= end_date
-        )
-    ).all()
-    return timeslots
+def get_event_free_slots(event: Event):
+    current_time = datetime.now()
+    date_range = DateTimeRange(event.start_date, event.end_date)
+    start_time = event.start_date + timedelta(
+        hours=event.start_time.hour,
+        minutes=event.start_time.minute
+    )
+    meetings = [meeting.start_time for meeting in event.meetings]
+    free_slots = []
+    if current_time > start_time:
+        next_day = current_time + timedelta(days=1)
+        next_day = datetime(year=next_day.year, month=next_day.month, day=next_day.day)
+        date_range = DateTimeRange(next_day, event.end_date)
+        time_delta = current_time - start_time
+        start = start_time + time_delta.days * timedelta(days=1) + (
+            time_delta.seconds // (60 * event.duration) + 1
+        ) * timedelta(minutes=event.duration)
+        if start.time() < event.end_time:
+            end = start.date + timedelta(
+                hours=event.end_time.hour,
+                minutes=event.end_time.minute
+            )
+            time_range = DateTimeRange(start, end)
+            slots = [
+                slot for slot in
+                list(time_range.range(timedelta(minutes=event.duration)))[:-1]
+                if slot not in meetings]
+            free_slots.extend(slots)
+
+    for day in date_range.range(timedelta(days=1)):
+        if event.working_days and day.weekday() > 4:
+            continue
+        else:
+            start = day + timedelta(
+                hours=event.start_time.hour,
+                minutes=event.start_time.minute
+            )
+            end = day + timedelta(
+                hours=event.end_time.hour,
+                minutes=event.end_time.minute
+            )
+            time_range = DateTimeRange(start, end)
+            slots = [
+                slot for slot in
+                list(time_range.range(timedelta(minutes=event.duration)))[:-1]
+                if slot not in meetings
+            ]
+            free_slots.extend(slots)
+    return free_slots
 
 
 class CRUDService:
     def __init__(
             self,
-            model: Type[Union[User, Meeting, Timeslot]],
+            model: Type[Union[User, Meeting, Event, UserAccount]],
             db: SQLAlchemy
     ):
         self.model = model
         self.db = db
 
-    def add(self, instance: Union[User, Meeting, Timeslot]):
+    def add(self, instance: Union[User, Meeting, Event, UserAccount]):
         self.db.session.add(instance)
         self.db.session.commit()
 
-    def get(self, id: int) -> Union[User, Meeting, Timeslot]:
+    def get(self, id: int) -> Union[User, Meeting, Event, UserAccount]:
         return self.model.query.get(id)
 
-    def get_all(self) -> List[Union[User, Meeting, Timeslot]]:
+    def get_all(self) -> List[Union[User, Meeting, Event, UserAccount]]:
         return self.model.query.all()
 
     def update(
             self,
-            instance: Union[User, Meeting, Timeslot],
+            instance: Union[User, Meeting, Event, UserAccount],
             update_json: dict
     ):
         if isinstance(instance, User):
@@ -117,17 +104,10 @@ class CRUDService:
                 generate_password_hash(update_json["password"]). \
                 decode("utf-8")
             self.model.query.filter_by(id=instance.id).update(update_json)
-        elif isinstance(instance, Meeting):
-            instance.participants = update_json["participants"]
-            update_json.pop("participants")
+        else:
             self.model.query.filter_by(id=instance.id).update(update_json)
-        elif isinstance(instance, Timeslot):
-            instance.start_time = update_json["start_time"]
-            instance.end_time = update_json["end_time"]
-            instance.user_id = update_json["user"]
-            self.db.session.add(instance)
         self.db.session.commit()
 
-    def delete(self, instance: Union[User, Meeting, Timeslot]):
+    def delete(self, instance: Union[User, Meeting, Event, UserAccount]):
         self.db.session.delete(instance)
         self.db.session.commit()

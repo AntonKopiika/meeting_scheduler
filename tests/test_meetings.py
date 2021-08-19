@@ -1,45 +1,26 @@
 import http
 import json
 
-from meeting_scheduler.src.models import Meeting
-
 
 def test_get_meetings_with_db(test_client):
     response = test_client.get("/meeting")
     assert response.status_code == http.HTTPStatus.OK
 
 
-def test_post_meeting_with_db(test_client, db_population):
+def test_post_meeting_with_db(test_client, test_user, db_population):
     data = {
-        "host": db_population["users"][0].id,
-        "participants": [db_population["users"][2].id],
-        "meeting_start_time": "2021-07-07T14:00:00",
-        "meeting_end_time": "2021-07-07T15:00:00",
-        "host_id": db_population["users"][0].id,
-        "title": "title",
-        "details": "teems",
-        "comment": "comment",
-        "link": "link"
+        "host": db_population["events"][1].host.id,
+        "event": db_population["events"][1].id,
+        "start_time": "2021-07-07T14:00:00",
+        "calendar_event_id": "ewr1sdg523dfl12kgj34i12ewa6s5d",
+        "attendee_name": "test attendee",
+        "attendee_email": "test@mail.com",
+        "link": "link",
+        "additional_info": "additional information"
     }
     response = test_client.post("/meeting", content_type="application/json", data=json.dumps(data))
     assert response.status_code == http.HTTPStatus.CREATED
-    assert response.json["title"] == "title"
-
-
-def test_check_meeting_overlap(test_client, db_population):
-    data = {
-        "host": db_population["users"][1].id,
-        "participants": [db_population["users"][2].id],
-        "meeting_start_time": "2021-07-07T12:00:00",
-        "meeting_end_time": "2021-07-07T12:15:00",
-        "host_id": db_population["users"][1].id,
-        "title": "title",
-        "details": "teems",
-        "comment": "comment",
-        "link": "link"
-    }
-    response = test_client.post("/meeting", content_type="application/json", data=json.dumps(data))
-    assert response.status_code == http.HTTPStatus.BAD_REQUEST
+    assert response.json["attendee_name"] == "test attendee"
 
 
 def test_post_wrong_data_meeting_with_db(test_client):
@@ -56,32 +37,30 @@ def test_get_non_existent_meeting_with_db(test_client):
 def test_get_meeting_by_id_with_db(test_client, test_meeting):
     response = test_client.get(f"/meeting/{test_meeting.id}")
     assert response.status_code == http.HTTPStatus.OK
-    assert response.json["title"] == test_meeting.title
+    assert response.json["attendee_name"] == test_meeting.attendee_name
 
 
 def test_get_meeting_by_user_id_with_db(test_client, test_user):
     response = test_client.get(f"/meeting?user={test_user.id}&start=2021-7-1&end=2021-8-1")
     assert response.status_code == http.HTTPStatus.OK
-    assert len(response.json) == 2
+    assert len(response.json) == 1
 
 
 def test_put_meeting_with_db(test_client, test_meeting, db_population, db):
     data = {
-        "host": db_population["users"][0].id,
-        "participants": [db_population["users"][2].id, db_population["users"][1].id],
-        "meeting_start_time": "2021-07-07T12:00:00",
-        "meeting_end_time": "2021-07-07T12:30:00",
-        "host_id": db_population["users"][0].id,
-        "title": "another title",
-        "details": "teems",
-        "comment": "comment",
-        "link": "link"
+        "host": db_population["events"][1].host.id,
+        "event": db_population["events"][1].id,
+        "start_time": "2021-07-07T14:00:00",
+        "calendar_event_id": "ewr1sdg523dfl12kgj34i12ewa6s5d",
+        "attendee_name": "attendee",
+        "attendee_email": "test@mail.com",
+        "link": "link",
+        "additional_info": "additional information"
     }
     response = test_client.put(f"/meeting/{test_meeting.id}", content_type="application/json", data=json.dumps(data))
 
-    assert db.session.query(Meeting).count() == 2
     assert response.status_code == http.HTTPStatus.OK
-    assert response.json["title"] == "another title"
+    assert response.json["attendee_name"] == "attendee"
 
 
 def test_put_wrong_meeting_with_db(test_client, test_meeting):

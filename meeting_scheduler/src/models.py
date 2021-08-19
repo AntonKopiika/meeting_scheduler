@@ -8,11 +8,10 @@ bcrypt = Bcrypt()
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), unique=True, nullable=False)
-    email = db.Column(db.String(64), unique=True, nullable=False)
     password = db.Column(db.String(256), nullable=False)
-    timeslots = db.relationship(
-        'Timeslot',
-        backref='user',
+    events = db.relationship(
+        'Event',
+        backref='host',
         lazy=True,
         cascade="all, delete"
     )
@@ -22,16 +21,15 @@ class User(db.Model):
         lazy=True,
         cascade="all, delete"
     )
-    creds = db.relationship(
-        'UserCredential',
+    accounts = db.relationship(
+        'UserAccount',
         backref='user',
         lazy=True,
         cascade="all, delete"
     )
 
-    def __init__(self, username: str, email: str, password: str):
+    def __init__(self, username: str, password: str):
         self.username = username
-        self.email = email
         self.password = bcrypt.generate_password_hash(password).decode('utf-8')
 
     def __repr__(self):
@@ -41,60 +39,51 @@ class User(db.Model):
         return bcrypt.check_password_hash(self.password, password)
 
 
-class Timeslot(db.Model):
+class Event(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    host_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    title = db.Column(db.String(32), nullable=False)
+    start_date = db.Column(db.Date, nullable=False)
+    end_date = db.Column(db.Date, nullable=False)
+    duration = db.Column(db.Integer, nullable=False)
+    working_days = db.Column(db.Boolean, default=True)
+    description = db.Column(db.String(256))
+    event_type = db.Column(db.String(256), nullable=False)
     start_time = db.Column(db.DateTime, nullable=False)
     end_time = db.Column(db.DateTime, nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    meetings = db.relationship(
+        'Meeting',
+        backref='event',
+        lazy=True,
+        cascade="all, delete"
+    )
 
     def __repr__(self):
-        return f'<Timeslot: {self.start_time}-{self.end_time} for {self.user}>'
-
-
-participants = db.Table(
-    'participant',
-    db.Column(
-        'participant_id',
-        db.Integer,
-        db.ForeignKey('user.id'),
-        primary_key=True
-    ),
-    db.Column(
-        'meeting_id',
-        db.Integer,
-        db.ForeignKey('meeting.id'),
-        primary_key=True
-    )
-)
+        return f'<Event: {self.start_time}-{self.end_time} for {self.host}>'
 
 
 class Meeting(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     host_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    meeting_start_time = db.Column(db.DateTime, nullable=False)
-    meeting_end_time = db.Column(db.DateTime, nullable=False)
-    title = db.Column(db.String(32), nullable=False)
-    comment = db.Column(db.String(256))
+    event_id = db.Column(db.Integer, db.ForeignKey('event.id'), nullable=False)
+    start_time = db.Column(db.DateTime, nullable=False)
+    calendar_event_id = db.Column(db.String(256), nullable=False)
+    attendee_name = db.Column(db.String(64), nullable=False)
+    attendee_email = db.Column(db.String(64), nullable=False)
     link = db.Column(db.String(64), nullable=False)
-    details = db.Column(db.String(64), nullable=False)
-    participants = db.relationship(
-        'User',
-        secondary=participants,
-        lazy='subquery',
-        backref=db.backref('invitations', lazy=True)
-    )
+    additional_info = db.Column(db.String(256))
 
     def __repr__(self):
-        return f'<Meeting: {self.meeting_start_time}' \
-               f'-{self.meeting_start_time} for {self.host}>'
+        return f'<Meeting: {self.start_time} event: {self.event}, user: {self.host}>'
 
 
-class UserCredential(db.Model):
+class UserAccount(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(64), nullable=False, unique=True)
     cred = db.Column(db.String(256), nullable=False)
     provider = db.Column(db.String(256), nullable=False)
     description = db.Column(db.String(256))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
     def __repr__(self):
-        return f'<UserCredential: {self.cred} for {self.user_id}>'
+        return f'<UserAccount: {self.email} for {self.user}>'

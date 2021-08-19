@@ -3,6 +3,7 @@ import os
 import msal
 import outlook_calendar_service.app_config as app_config
 from flask import redirect, render_template, request, session, url_for
+from flask_migrate import Migrate
 from flask_session import Session
 from flask_talisman import Talisman
 from google_secrets_manager_client.encryption import SECRET_ID, get_encryption_key
@@ -13,6 +14,7 @@ from meeting_scheduler.src import app_factory
 app = app_factory.get_app()
 app.config.from_object(app_config)
 Session(app)
+migrate = Migrate(app, app_factory.get_db())
 os.environ[SECRET_ID] = get_encryption_key()
 
 
