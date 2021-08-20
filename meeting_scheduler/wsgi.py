@@ -108,5 +108,4 @@ if __name__ == '__main__':
         Talisman(app)
         app.run(host="0.0.0.0", port=int(os.getenv('PORT', 5000)))
     else:
-        init_secret_manager()
         app.run(port=int(os.getenv('PORT', 5000)), debug=True)
