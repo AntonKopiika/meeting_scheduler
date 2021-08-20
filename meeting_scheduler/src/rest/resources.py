@@ -1,3 +1,5 @@
+from typing import Optional
+
 from flask import request
 from flask_restful import Resource
 
@@ -22,7 +24,7 @@ class UserApi(Resource):
     user_schema = UserSchema()
     user_db_service = CRUDService(User, db)
 
-    def get(self, user_id: int = None):
+    def get(self, user_id: Optional[int] = None):
         if user_id is None:
             users = self.user_db_service.get_all()
             return self.user_schema.dump(users, many=True), 200
@@ -65,7 +67,7 @@ class MeetingApi(Resource):
     request_schema = RequestSchema()
     meeting_db_service = CRUDService(Meeting, db)
 
-    def get(self, meeting_id: int = None):
+    def get(self, meeting_id: Optional[int] = None):
         if meeting_id is None:
             if request.args:
                 req = self.request_schema.get_request(request.args)
@@ -118,7 +120,7 @@ class UserAccountApi(Resource):
     account_schema = UserAccountSchema()
     account_db_service = CRUDService(UserAccount, db)
 
-    def get(self, account_id: int = None):
+    def get(self, account_id: Optional[int] = None):
         if account_id is None:
             accounts = self.account_db_service.get_all()
             return self.account_schema.dump(accounts, many=True), 200
@@ -163,7 +165,7 @@ class EventApi(Resource):
     event_schema = EventSchema()
     event_db_service = CRUDService(Event, db)
 
-    def get(self, event_id: int = None):
+    def get(self, event_id: Optional[int] = None):
         if event_id is None:
             events = self.event_db_service.get_all()
             return self.event_schema.dump(events, many=True), 200

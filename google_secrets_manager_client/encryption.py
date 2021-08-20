@@ -1,11 +1,9 @@
-import os
-
+from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
-from cryptography.hazmat.primitives.kdf.scrypt import Scrypt
 from google_secrets_manager_client.secrets_manager import access_secret_version
 
-salt = b"LOM4h0lOzLG1MDnL"
-iv = b"iV2Jw7WufiFdxoUx"
+from meeting_scheduler.app_config import Settings
+
 SECRET_ID = "encryption_key"
 
 
@@ -16,29 +14,28 @@ def get_encryption_key():
 class CryptoService:
 
     def __init__(self):
-        kdf = Scrypt(
-            salt=salt,
-            length=32,
-            n=2 ** 14,
-            r=8,
-            p=1,
-        )
-        key = os.environ[SECRET_ID]
-        self.key = kdf.derive(key.encode())
+        key = Settings().encryption_key
+        digest = hashes.Hash(hashes.SHA256())
+        digest.update(key.encode())
+        self.key = digest.finalize()
 
     def encrypt(self, data: str):
         encryptor = Cipher(
             algorithms.AES(self.key),
-            modes.CTR(iv),
+            modes.ECB(),
         ).encryptor()
-        encrypted_text = encryptor.update(data.encode()) + encryptor.finalize()
+        block_size = 16
+        pad = " "
+        padded_data = data + (block_size - len(data) % block_size) * pad
+        encrypted_text = encryptor.update(padded_data.encode()) + encryptor.finalize()
 
         return encrypted_text
 
     def decrypt(self, encrypted_text: str):
         decryptor = Cipher(
             algorithms.AES(self.key),
-            modes.CTR(iv),
+            modes.ECB(),
         ).decryptor()
+        data = (decryptor.update(encrypted_text) + decryptor.finalize()).strip()
 
-        return decryptor.update(encrypted_text) + decryptor.finalize()
+        return data.decode()

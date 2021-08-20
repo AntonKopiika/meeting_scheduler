@@ -1,21 +1,21 @@
 import os
 
 import msal
-import outlook_calendar_service.app_config as app_config
 from flask import redirect, render_template, request, session, url_for
 from flask_migrate import Migrate
-from flask_session import Session
 from flask_talisman import Talisman
-from google_secrets_manager_client.encryption import SECRET_ID, get_encryption_key
+from google_secrets_manager_client.secrets_manager import init_secret_manager
 from outlook_calendar_service.calendar_api import get_user
 
+from flask_session import Session
+from meeting_scheduler.app_config import Settings
 from meeting_scheduler.src import app_factory
 
+settings = Settings()
 app = app_factory.get_app()
-app.config.from_object(app_config)
+app.config.from_object(settings)
 Session(app)
 migrate = Migrate(app, app_factory.get_db())
-os.environ[SECRET_ID] = get_encryption_key()
 
 
 @app.route("/")
@@ -27,14 +27,14 @@ def index():
 
 @app.route("/login")
 def login():
-    session["flow"] = _build_auth_code_flow(scopes=app_config.SCOPE)
+    session["flow"] = _build_auth_code_flow(scopes=settings.scope)
     return render_template(
         "login.html",
         auth_url=session["flow"]["auth_uri"],
     )
 
 
-@app.route(app_config.REDIRECT_PATH)
+@app.route(settings.redirect_path)
 def authorized():
     try:
         cache = _load_cache()
@@ -55,13 +55,13 @@ def authorized():
 def logout():
     session.clear()
     return redirect(
-        app_config.AUTHORITY + "/oauth2/v2.0/logout"
+        settings.outlook_authority + "/oauth2/v2.0/logout"
         "?post_logout_redirect_uri=" + url_for("index", _external=True))
 
 
 @app.route("/graphcall")
 def graphcall():
-    token = _get_token_from_cache(app_config.SCOPE)
+    token = _get_token_from_cache(settings.scope)
     if not token:
         return redirect(url_for("login"))
     graph_data = get_user(token)
@@ -82,14 +82,14 @@ def _save_cache(cache):
 
 def _build_msal_app(cache=None, authority=None):
     return msal.ConfidentialClientApplication(
-        app_config.CLIENT_ID, authority=authority or app_config.AUTHORITY,
-        client_credential=app_config.CLIENT_SECRET, token_cache=cache)
+        settings.outlook_client_id, authority=authority or settings.outlook_authority,
+        client_credential=settings.outlook_client_secret, token_cache=cache)
 
 
 def _build_auth_code_flow(authority=None, scopes=None):
     return _build_msal_app(authority=authority).initiate_auth_code_flow(
         scopes or [],
-        redirect_uri=app_config.REDIRECT_URI)
+        redirect_uri=settings.redirect_uri)
 
 
 def _get_token_from_cache(scope=None):
@@ -104,7 +104,9 @@ def _get_token_from_cache(scope=None):
 
 if __name__ == '__main__':
     if "DYNO" in os.environ:
+        init_secret_manager()
         Talisman(app)
         app.run(host="0.0.0.0", port=int(os.getenv('PORT', 5000)))
     else:
+        init_secret_manager()
         app.run(port=int(os.getenv('PORT', 5000)), debug=True)

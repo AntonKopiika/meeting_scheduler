@@ -1,9 +1,8 @@
-import os
-
 import injections
 from flask import Flask
 from flask_restful import Api
 
+from meeting_scheduler.app_config import Settings
 from meeting_scheduler.containers import AppContainer
 from meeting_scheduler.src.models import bcrypt, db
 
@@ -34,7 +33,7 @@ class AppFactory:
             test_container = create_app_container("sqlite:///:memory:")
             self.container = test_container.inject(AppContainer())
         else:
-            db_uri = os.getenv("DATABASE_URI")
+            db_uri = Settings().database_uri
             container = create_app_container(db_uri)
             self.container = container.inject(AppContainer())
 
