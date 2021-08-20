@@ -3,11 +3,11 @@ import os
 import msal
 from flask import redirect, render_template, request, session, url_for
 from flask_migrate import Migrate
+from flask_session import Session
 from flask_talisman import Talisman
 from google_secrets_manager_client.secrets_manager import init_secret_manager
 from outlook_calendar_service.calendar_api import get_user
 
-from flask_session import Session
 from meeting_scheduler.app_config import Settings
 from meeting_scheduler.src import app_factory
 
