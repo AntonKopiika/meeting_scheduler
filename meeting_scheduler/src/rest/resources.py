@@ -1,16 +1,20 @@
+import datetime
 from typing import Optional
 
 from flask import request
 from flask_restful import Resource
 
+from google_secrets_manager_client.encryption import CryptoService
 from meeting_scheduler.src import app_factory
-from meeting_scheduler.src.db_service import CRUDService, get_user_meetings
+from meeting_scheduler.src.db_service import CRUDService, get_user_meetings, create_user_account
 from meeting_scheduler.src.models import Event, Meeting, User, UserAccount
 from meeting_scheduler.src.schemas.event import EventSchema
 from meeting_scheduler.src.schemas.meeting import MeetingSchema
 from meeting_scheduler.src.schemas.request import RequestSchema
 from meeting_scheduler.src.schemas.user import UserSchema
 from meeting_scheduler.src.schemas.user_account import UserAccountSchema
+# from meeting_scheduler.wsgi import _get_token_from_refresh_token
+from outlook_calendar_service.calendar_api import OutlookApiService, get_outlook_token_from_user_account
 
 db = app_factory.get_db()
 
@@ -66,6 +70,7 @@ class MeetingApi(Resource):
     meeting_schema = MeetingSchema()
     request_schema = RequestSchema()
     meeting_db_service = CRUDService(Meeting, db)
+    crypto_service = CryptoService()
 
     def get(self, meeting_id: Optional[int] = None):
         if meeting_id is None:
@@ -84,6 +89,28 @@ class MeetingApi(Resource):
     def post(self):
         meeting = self.meeting_schema.deserialize(request.json)
         if meeting:
+            host = meeting.host
+            for account in host.accounts:
+                if account.provider == "outlook":
+                    token = get_outlook_token_from_user_account(account)
+                    outlook_service = OutlookApiService(token)
+                    datetime_format = "%Y-%m-%dT%H:%M:%S"
+                    start_time = meeting.start_time.strftime(datetime_format)
+                    end_time = (meeting.start_time + datetime.timedelta(minutes=meeting.event.duration)).strftime(
+                        datetime_format)
+
+                    calendar_response = outlook_service.create_event(
+                        title=meeting.event.title,
+                        description=meeting.event.description,
+                        start_time=start_time,
+                        end_time=end_time,
+                        timezone="FLE Standard Time",
+                        attendee_name=meeting.attendee_name,
+                        attendee_email=meeting.attendee_email,
+                        location=meeting.event.event_type,
+                    )
+                    if calendar_response.get("id", None):
+                        meeting.calendar_event_id = calendar_response["id"]
             self.meeting_db_service.add(meeting)
             return self.meeting_schema.dump(meeting), 201
         return "", 400
@@ -104,6 +131,24 @@ class MeetingApi(Resource):
                 "link": new_meeting.link,
                 "additional_info": new_meeting.additional_info
             }
+            host = new_meeting.host
+            for account in host.accounts:
+                if account.provider == "outlook":
+                    token = get_outlook_token_from_user_account(account)
+                    outlook_service = OutlookApiService(token)
+                    datetime_format = "%Y-%m-%dT%H:%M:%S"
+                    start_time = new_meeting.start_time.strftime(datetime_format)
+                    end_time = (new_meeting.start_time + datetime.timedelta(minutes=meeting.event.duration)).strftime(
+                        datetime_format)
+                    outlook_service.update_event(
+                        event_id=meeting.calendar_event_id,
+                        title=new_meeting.event.title,
+                        description=new_meeting.event.description,
+                        start_time=start_time,
+                        end_time=end_time,
+                        timezone="FLE Standard Time",
+                        location=new_meeting.event.event_type
+                    )
             self.meeting_db_service.update(meeting, update_json)
             return self.meeting_schema.dump(meeting), 200
         return "", 400
@@ -111,6 +156,15 @@ class MeetingApi(Resource):
     def delete(self, meeting_id: int):
         meeting = self.meeting_db_service.get(meeting_id)
         if meeting:
+            host = meeting.host
+            for account in host.accounts:
+                if account.provider == "outlook":
+                    token = get_outlook_token_from_user_account(account)
+                    outlook_service = OutlookApiService(token)
+                    if meeting.calendar_event_id:
+                        outlook_service.delete_event(
+                            event_id=meeting.calendar_event_id
+                        )
             self.meeting_db_service.delete(meeting)
             return "", 204
         return "", 404
@@ -132,7 +186,13 @@ class UserAccountApi(Resource):
     def post(self):
         account = self.account_schema.deserialize(request.json)
         if account:
-            self.account_db_service.add(account)
+            create_user_account(
+                account.email,
+                account.cred,
+                account.user,
+                account.provider,
+                account.description
+            )
             return self.account_schema.dump(account), 201
         return "", 400
 
@@ -142,15 +202,14 @@ class UserAccountApi(Resource):
             return "", 404
         new_account = self.account_schema.deserialize(request.json)
         if new_account:
-            update_json = {
-                "email": new_account.email,
-                "cred": new_account.cred,
-                "provider": new_account.provider,
-                "description": new_account.description,
-                "user_id": new_account.user.id
-            }
-            self.account_db_service.update(account, update_json)
-            return self.account_schema.dump(account), 200
+            create_user_account(
+                new_account.email,
+                new_account.cred,
+                new_account.user,
+                new_account.provider,
+                new_account.description
+            )
+            return "", 200
         return "", 400
 
     def delete(self, account_id: int):

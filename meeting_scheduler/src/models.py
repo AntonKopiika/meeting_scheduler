@@ -1,11 +1,12 @@
 from flask_bcrypt import Bcrypt
+from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 bcrypt = Bcrypt()
 
 
-class User(db.Model):
+class User(db.Model,UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), unique=True, nullable=False)
     password = db.Column(db.String(256), nullable=False)
@@ -67,7 +68,7 @@ class Meeting(db.Model):
     host_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     event_id = db.Column(db.Integer, db.ForeignKey('event.id'), nullable=False)
     start_time = db.Column(db.DateTime, nullable=False)
-    calendar_event_id = db.Column(db.String(256), nullable=False)
+    calendar_event_id = db.Column(db.String(256))
     attendee_name = db.Column(db.String(64), nullable=False)
     attendee_email = db.Column(db.String(64), nullable=False)
     link = db.Column(db.String(64), nullable=False)
@@ -80,7 +81,7 @@ class Meeting(db.Model):
 class UserAccount(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(64), nullable=False, unique=True)
-    cred = db.Column(db.String(256), nullable=False)
+    cred = db.Column(db.LargeBinary(1024), nullable=False)
     provider = db.Column(db.String(256), nullable=False)
     description = db.Column(db.String(256))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)

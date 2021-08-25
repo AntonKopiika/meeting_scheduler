@@ -3,12 +3,15 @@ from typing import List, Type, Union
 
 from datetimerange import DateTimeRange
 from flask_sqlalchemy import SQLAlchemy
+from flask import abort
 
+from google_secrets_manager_client.encryption import CryptoService
 from meeting_scheduler.src import app_factory
 from meeting_scheduler.src.models import Event, Meeting, User, UserAccount
 from meeting_scheduler.src.schemas.request import Request
 
 bcrypt = app_factory.get_bcrypt()
+db = app_factory.get_db()
 
 
 def get_user_meetings(request: Request):
@@ -39,7 +42,7 @@ def get_event_free_slots(event: Event):
         date_range = DateTimeRange(next_day, event.end_date)
         time_delta = current_time - start_time
         start = start_time + time_delta.days * timedelta(days=1) + (
-            time_delta.seconds // (60 * event.duration) + 1
+                time_delta.seconds // (60 * event.duration) + 1
         ) * timedelta(minutes=event.duration)
         if start.time() < event.end_time:
             end = start.date + timedelta(
@@ -73,6 +76,38 @@ def get_event_free_slots(event: Event):
             ]
             free_slots.extend(slots)
     return free_slots
+
+
+def create_user_account(
+        email: str,
+        cred: str,
+        user: User,
+        provider: str,
+        description: str = None
+):
+    crypto_service = CryptoService()
+    account = UserAccount.query.filter(UserAccount.email == email).first()
+    if account:
+        if account.user == user:
+            account.email = email
+            account.user = user
+            account.provider = provider
+            account.description = description
+            account.cred = crypto_service.encrypt(cred)
+        else:
+            abort(400)
+    else:
+        account = UserAccount(
+            email=email,
+            cred=crypto_service.encrypt(cred),
+            user=user,
+            user_id=user.id,
+            provider=provider,
+            description=description
+        )
+        db.session.add(account)
+    db.session.commit()
+    return account
 
 
 class CRUDService:

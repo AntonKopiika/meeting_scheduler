@@ -12,7 +12,6 @@ PROJECT_ID = settings.google_project_id
 def init_secret_manager():
     with open(settings.google_application_creds, 'r+') as file:
         file_data = json.load(file)
-        print(file_data)
         file_data["private_key"] = settings.google_service_private_key
         file.seek(0)
         json.dump(file_data, file, indent=4)

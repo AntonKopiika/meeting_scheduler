@@ -1,5 +1,6 @@
 import http
 import json
+from unittest.mock import patch
 
 
 def test_get_meetings_with_db(test_client):
@@ -8,19 +9,21 @@ def test_get_meetings_with_db(test_client):
 
 
 def test_post_meeting_with_db(test_client, test_user, db_population):
-    data = {
-        "host": db_population["events"][1].host.id,
-        "event": db_population["events"][1].id,
-        "start_time": "2021-07-07T14:00:00",
-        "calendar_event_id": "ewr1sdg523dfl12kgj34i12ewa6s5d",
-        "attendee_name": "test attendee",
-        "attendee_email": "test@mail.com",
-        "link": "link",
-        "additional_info": "additional information"
-    }
-    response = test_client.post("/meeting", content_type="application/json", data=json.dumps(data))
-    assert response.status_code == http.HTTPStatus.CREATED
-    assert response.json["attendee_name"] == "test attendee"
+    with patch("outlook_calendar_service.calendar_api.OutlookApiService.create_event", autospec=True,
+               return_value={}) as mock_create_meeting:
+        data = {
+            "host": db_population["events"][1].host.id,
+            "event": db_population["events"][1].id,
+            "start_time": "2021-07-07T14:00:00",
+            "calendar_event_id": "ewr1sdg523dfl12kgj34i12ewa6s5d",
+            "attendee_name": "test attendee",
+            "attendee_email": "test@mail.com",
+            "link": "link",
+            "additional_info": "additional information"
+        }
+        response = test_client.post("/meeting", content_type="application/json", data=json.dumps(data))
+        assert response.status_code == http.HTTPStatus.CREATED
+        assert response.json["attendee_name"] == "test attendee"
 
 
 def test_post_wrong_data_meeting_with_db(test_client):
@@ -47,20 +50,21 @@ def test_get_meeting_by_user_id_with_db(test_client, test_user):
 
 
 def test_put_meeting_with_db(test_client, test_meeting, db_population, db):
-    data = {
-        "host": db_population["events"][1].host.id,
-        "event": db_population["events"][1].id,
-        "start_time": "2021-07-07T14:00:00",
-        "calendar_event_id": "ewr1sdg523dfl12kgj34i12ewa6s5d",
-        "attendee_name": "attendee",
-        "attendee_email": "test@mail.com",
-        "link": "link",
-        "additional_info": "additional information"
-    }
-    response = test_client.put(f"/meeting/{test_meeting.id}", content_type="application/json", data=json.dumps(data))
-
-    assert response.status_code == http.HTTPStatus.OK
-    assert response.json["attendee_name"] == "attendee"
+    with patch("outlook_calendar_service.calendar_api.OutlookApiService.update_event", autospec=True,
+               return_value={}) as mock_put_meeting:
+        data = {
+            "host": db_population["events"][1].host.id,
+            "event": db_population["events"][1].id,
+            "start_time": "2021-07-07T14:00:00",
+            "calendar_event_id": "ewr1sdg523dfl12kgj34i12ewa6s5d",
+            "attendee_name": "attendee",
+            "attendee_email": "test@mail.com",
+            "link": "link",
+            "additional_info": "additional information"
+        }
+        response = test_client.put(f"/meeting/{test_meeting.id}", content_type="application/json", data=json.dumps(data))
+        assert response.status_code == http.HTTPStatus.OK
+        assert response.json["attendee_name"] == "attendee"
 
 
 def test_put_wrong_meeting_with_db(test_client, test_meeting):
@@ -71,8 +75,10 @@ def test_put_wrong_meeting_with_db(test_client, test_meeting):
 
 
 def test_delete_meeting_with_db(test_client, test_meeting):
-    response = test_client.delete(f"/meeting/{test_meeting.id}")
-    assert response.status_code == http.HTTPStatus.NO_CONTENT
+    with patch("outlook_calendar_service.calendar_api.OutlookApiService.delete_event", autospec=True,
+               return_value={}) as mock_delete_meeting:
+        response = test_client.delete(f"/meeting/{test_meeting.id}")
+        assert response.status_code == http.HTTPStatus.NO_CONTENT
 
 
 def test_delete_non_existent_meeting_with_db(test_client):

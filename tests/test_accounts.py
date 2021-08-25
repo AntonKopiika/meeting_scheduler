@@ -42,13 +42,12 @@ def test_put_account_with_db(test_client, test_account, test_user):
         'email': "testuser21@gmail.com",
         'cred': "3453dfhf54",
         "provider": "google",
-        "description": "some description",
+        "description": "description",
         'user': test_user.id,
     }
     response = test_client.put(f"/user/account/{test_account.id}", content_type="application/json", data=json.dumps(data))
 
     assert response.status_code == http.HTTPStatus.OK
-    assert response.json["cred"] == "3453dfhf54"
 
 
 def test_put_wrong_account_with_db(test_client, test_account):

@@ -40,20 +40,20 @@ def db_population(db):
     user_accounts = [
         UserAccount(
             email="test1@gmail.com",
-            cred="qwe8qw45we65rte4",
+            cred=b'qwe8qw45we65rte4',
             provider="google",
             description="",
             user_id=users_from_db[0].id),
         UserAccount(
             email="test2@gmail.com",
-            cred="sdf8sa07sdaw6ewq8j",
+            cred=b'sdf8sa07sdaw6ewq8j',
             provider="google",
             description="",
             user_id=users_from_db[1].id
         ),
         UserAccount(
             email="test3@outlook.com",
-            cred="sdf8swq8j",
+            cred=b"sdf8swq8j",
             provider="microsoft",
             description="",
             user_id=users_from_db[2].id
