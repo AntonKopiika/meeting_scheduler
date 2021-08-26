@@ -11,11 +11,7 @@ from outlook_calendar_service.calendar_api import (
 
 from meeting_scheduler.app_config import Settings
 from meeting_scheduler.src import app_factory
-from meeting_scheduler.src.db_service import (
-    CRUDService,
-    create_user_account,
-    get_user_meetings
-)
+from meeting_scheduler.src.db_service import CRUDService, create_user_account, get_user_meetings
 from meeting_scheduler.src.models import Event, Meeting, User, UserAccount
 from meeting_scheduler.src.schemas.event import EventSchema
 from meeting_scheduler.src.schemas.meeting import MeetingSchema
