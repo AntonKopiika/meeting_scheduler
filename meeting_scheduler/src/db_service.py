@@ -6,6 +6,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask import abort
 
 from google_secrets_manager_client.encryption import CryptoService
+from meeting_scheduler.app_config import Settings
 from meeting_scheduler.src import app_factory
 from meeting_scheduler.src.models import Event, Meeting, User, UserAccount
 from meeting_scheduler.src.schemas.request import Request
@@ -76,6 +77,21 @@ def get_event_free_slots(event: Event):
             ]
             free_slots.extend(slots)
     return free_slots
+
+
+def add_internal_meeting_from_outlook(meeting_json: dict, host: User):
+    datetime_format = Settings().datetime_format
+    meeting = Meeting(
+        host_id=host.id,
+        start_time=datetime.strptime(meeting_json["start"]["dateTime"][:-8], datetime_format),
+        end_time=datetime.strptime(meeting_json["end"]["dateTime"][:-8], datetime_format),
+        calendar_event_id=meeting_json["id"],
+        attendee_name=meeting_json["attendees"][0]["emailAddress"]["name"],
+        attendee_email=meeting_json["attendees"][0]["emailAddress"]["address"],
+        link=meeting_json["webLink"]
+    )
+    db.session.add(meeting)
+    db.session.commit()
 
 
 def create_user_account(

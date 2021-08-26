@@ -6,7 +6,7 @@ db = SQLAlchemy()
 bcrypt = Bcrypt()
 
 
-class User(db.Model,UserMixin):
+class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), unique=True, nullable=False)
     password = db.Column(db.String(256), nullable=False)
@@ -66,12 +66,13 @@ class Event(db.Model):
 class Meeting(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     host_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    event_id = db.Column(db.Integer, db.ForeignKey('event.id'), nullable=False)
+    event_id = db.Column(db.Integer, db.ForeignKey('event.id'))
     start_time = db.Column(db.DateTime, nullable=False)
+    end_time = db.Column(db.DateTime, nullable=False)
     calendar_event_id = db.Column(db.String(256))
     attendee_name = db.Column(db.String(64), nullable=False)
     attendee_email = db.Column(db.String(64), nullable=False)
-    link = db.Column(db.String(64), nullable=False)
+    link = db.Column(db.String(256), nullable=False)
     additional_info = db.Column(db.String(256))
 
     def __repr__(self):

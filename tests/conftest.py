@@ -2,6 +2,7 @@ from datetime import datetime
 
 import pytest
 
+from meeting_scheduler.app_config import Settings
 from meeting_scheduler.src import app_factory
 from meeting_scheduler.src.models import Event, Meeting, User, UserAccount
 
@@ -35,7 +36,7 @@ def db_population(db):
     db.session.commit()
     users_from_db = db.session.query(User).filter(User.username.like("testuser%")).all()
     date_format = "%Y-%m-%d"
-    datetime_format = "%Y-%m-%d %H:%M:%S"
+    datetime_format = Settings().datetime_format
 
     user_accounts = [
         UserAccount(
@@ -63,38 +64,38 @@ def db_population(db):
         Event(
             host_id=users_from_db[0].id,
             title="test_event",
-            start_date=datetime.strptime("2021-07-07 00:00:00", datetime_format).date(),
-            end_date=datetime.strptime("2021-09-07 00:00:00", datetime_format).date(),
+            start_date=datetime.strptime("2021-07-07T00:00:00", datetime_format).date(),
+            end_date=datetime.strptime("2021-09-07T00:00:00", datetime_format).date(),
             duration=30,
             working_days=True,
             description="test_event",
             event_type="online",
-            start_time=datetime.strptime("2021-07-07 12:00:00", datetime_format),
-            end_time=datetime.strptime("2021-07-07 16:00:00", datetime_format)
+            start_time=datetime.strptime("2021-07-07T12:00:00", datetime_format),
+            end_time=datetime.strptime("2021-07-07T16:00:00", datetime_format)
         ),
         Event(
             host_id=users_from_db[1].id,
             title="test_event",
-            start_date=datetime.strptime("2021-07-07 00:00:00", datetime_format).date(),
-            end_date=datetime.strptime("2021-09-07 00:00:00", datetime_format).date(),
+            start_date=datetime.strptime("2021-07-07T00:00:00", datetime_format).date(),
+            end_date=datetime.strptime("2021-09-07T00:00:00", datetime_format).date(),
             duration=30,
             working_days=True,
             description="test_event",
             event_type="online",
-            start_time=datetime.strptime("2021-07-07 12:00:00", datetime_format),
-            end_time=datetime.strptime("2021-07-07 16:00:00", datetime_format)
+            start_time=datetime.strptime("2021-07-07T12:00:00", datetime_format),
+            end_time=datetime.strptime("2021-07-07T16:00:00", datetime_format)
         ),
         Event(
             host_id=users_from_db[2].id,
             title="test_event",
-            start_date=datetime.strptime("2021-07-07 00:00:00", datetime_format).date(),
-            end_date=datetime.strptime("2021-09-07 00:00:00", datetime_format).date(),
+            start_date=datetime.strptime("2021-07-07T00:00:00", datetime_format).date(),
+            end_date=datetime.strptime("2021-09-07T00:00:00", datetime_format).date(),
             duration=30,
             working_days=True,
             description="test_event",
             event_type="online",
-            start_time=datetime.strptime("2021-07-07 12:00:00", datetime_format),
-            end_time=datetime.strptime("2021-07-07 16:00:00", datetime_format)
+            start_time=datetime.strptime("2021-07-07T12:00:00", datetime_format),
+            end_time=datetime.strptime("2021-07-07T16:00:00", datetime_format)
         )
     ]
     db.session.add_all(user_accounts)
@@ -116,7 +117,8 @@ def db_population(db):
         Meeting(
             host_id=events_from_db[0].host_id,
             event_id=events_from_db[0].id,
-            start_time=datetime.strptime("2021-07-07 12:00:00", datetime_format),
+            start_time=datetime.strptime("2021-07-07T12:00:00", datetime_format),
+            end_time=datetime.strptime("2021-07-07T12:30:00", datetime_format),
             calendar_event_id="sdg12d4fsf21dgd7s",
             attendee_name="test attendee",
             attendee_email="test@email.com",
@@ -126,7 +128,8 @@ def db_population(db):
         Meeting(
             host_id=events_from_db[1].host_id,
             event_id=events_from_db[1].id,
-            start_time=datetime.strptime("2021-07-07 12:00:00", datetime_format),
+            start_time=datetime.strptime("2021-07-07T12:00:00", datetime_format),
+            end_time=datetime.strptime("2021-07-07T12:30:00", datetime_format),
             calendar_event_id="sdg12d4fsf21dgd7s",
             attendee_name="test attendee",
             attendee_email="test@email.com",

@@ -31,4 +31,7 @@ class Settings(BaseSettings):
     # app config
     SECRET_KEY = "test"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    datetime_format = "%Y-%m-%dT%H:%M:%S"
     database_uri: str = Field(env="DATABASE_URI")
+    celery_broker_url: str = Field(env="CELERY_BROKER_URL")
+    celery_backend_url: str = 'rpc://'

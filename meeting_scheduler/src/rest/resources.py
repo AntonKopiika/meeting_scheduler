@@ -5,6 +5,7 @@ from flask import request
 from flask_restful import Resource
 
 from google_secrets_manager_client.encryption import CryptoService
+from meeting_scheduler.app_config import Settings
 from meeting_scheduler.src import app_factory
 from meeting_scheduler.src.db_service import CRUDService, get_user_meetings, create_user_account
 from meeting_scheduler.src.models import Event, Meeting, User, UserAccount
@@ -94,17 +95,16 @@ class MeetingApi(Resource):
                 if account.provider == "outlook":
                     token = get_outlook_token_from_user_account(account)
                     outlook_service = OutlookApiService(token)
-                    datetime_format = "%Y-%m-%dT%H:%M:%S"
+                    datetime_format = Settings().datetime_format
                     start_time = meeting.start_time.strftime(datetime_format)
-                    end_time = (meeting.start_time + datetime.timedelta(minutes=meeting.event.duration)).strftime(
-                        datetime_format)
+                    end_time = meeting.end_time.strftime(datetime_format)
 
                     calendar_response = outlook_service.create_event(
                         title=meeting.event.title,
                         description=meeting.event.description,
                         start_time=start_time,
                         end_time=end_time,
-                        timezone="FLE Standard Time",
+                        timezone="UTC",
                         attendee_name=meeting.attendee_name,
                         attendee_email=meeting.attendee_email,
                         location=meeting.event.event_type,
@@ -125,6 +125,7 @@ class MeetingApi(Resource):
                 "host_id": new_meeting.host.id,
                 "event_id": new_meeting.event.id,
                 "start_time": new_meeting.start_time,
+                "end_time": new_meeting.end_time,
                 "calendar_event_id": new_meeting.calendar_event_id,
                 "attendee_name": new_meeting.attendee_name,
                 "attendee_email": new_meeting.attendee_email,
@@ -136,17 +137,16 @@ class MeetingApi(Resource):
                 if account.provider == "outlook":
                     token = get_outlook_token_from_user_account(account)
                     outlook_service = OutlookApiService(token)
-                    datetime_format = "%Y-%m-%dT%H:%M:%S"
+                    datetime_format = Settings().datetime_format
                     start_time = new_meeting.start_time.strftime(datetime_format)
-                    end_time = (new_meeting.start_time + datetime.timedelta(minutes=meeting.event.duration)).strftime(
-                        datetime_format)
+                    end_time = new_meeting.end_time.strftime(datetime_format)
                     outlook_service.update_event(
                         event_id=meeting.calendar_event_id,
                         title=new_meeting.event.title,
                         description=new_meeting.event.description,
                         start_time=start_time,
                         end_time=end_time,
-                        timezone="FLE Standard Time",
+                        timezone="UTC",
                         location=new_meeting.event.event_type
                     )
             self.meeting_db_service.update(meeting, update_json)
