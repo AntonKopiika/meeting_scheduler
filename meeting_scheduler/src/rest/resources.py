@@ -3,19 +3,25 @@ from typing import Optional
 
 from flask import request
 from flask_restful import Resource
-
 from google_secrets_manager_client.encryption import CryptoService
+from outlook_calendar_service.calendar_api import (
+    OutlookApiService,
+    get_outlook_token_from_user_account,
+)
+
 from meeting_scheduler.app_config import Settings
 from meeting_scheduler.src import app_factory
-from meeting_scheduler.src.db_service import CRUDService, get_user_meetings, create_user_account
+from meeting_scheduler.src.db_service import (
+    CRUDService,
+    create_user_account,
+    get_user_meetings
+)
 from meeting_scheduler.src.models import Event, Meeting, User, UserAccount
 from meeting_scheduler.src.schemas.event import EventSchema
 from meeting_scheduler.src.schemas.meeting import MeetingSchema
 from meeting_scheduler.src.schemas.request import RequestSchema
 from meeting_scheduler.src.schemas.user import UserSchema
 from meeting_scheduler.src.schemas.user_account import UserAccountSchema
-# from meeting_scheduler.wsgi import _get_token_from_refresh_token
-from outlook_calendar_service.calendar_api import OutlookApiService, get_outlook_token_from_user_account
 
 db = app_factory.get_db()
 

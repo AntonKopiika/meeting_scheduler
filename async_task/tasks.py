@@ -1,9 +1,9 @@
 from celery import Celery
-from meeting_scheduler.src import app_factory
-from meeting_scheduler.src.models import UserAccount
+from outlook_calendar_service.calendar_api import sync_meetings_with_db
 
 from meeting_scheduler.app_config import Settings
-from outlook_calendar_service.calendar_api import sync_meetings_with_db
+from meeting_scheduler.src import app_factory
+from meeting_scheduler.src.models import UserAccount
 
 celery = Celery('tasks',
              broker=Settings().celery_broker_url,

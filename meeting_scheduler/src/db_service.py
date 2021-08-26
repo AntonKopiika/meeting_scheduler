@@ -2,10 +2,10 @@ from datetime import datetime, timedelta
 from typing import List, Type, Union
 
 from datetimerange import DateTimeRange
-from flask_sqlalchemy import SQLAlchemy
 from flask import abort
-
+from flask_sqlalchemy import SQLAlchemy
 from google_secrets_manager_client.encryption import CryptoService
+
 from meeting_scheduler.app_config import Settings
 from meeting_scheduler.src import app_factory
 from meeting_scheduler.src.models import Event, Meeting, User, UserAccount
@@ -43,7 +43,7 @@ def get_event_free_slots(event: Event):
         date_range = DateTimeRange(next_day, event.end_date)
         time_delta = current_time - start_time
         start = start_time + time_delta.days * timedelta(days=1) + (
-                time_delta.seconds // (60 * event.duration) + 1
+            time_delta.seconds // (60 * event.duration) + 1
         ) * timedelta(minutes=event.duration)
         if start.time() < event.end_time:
             end = start.date + timedelta(
@@ -83,8 +83,14 @@ def add_internal_meeting_from_outlook(meeting_json: dict, host: User):
     datetime_format = Settings().datetime_format
     meeting = Meeting(
         host_id=host.id,
-        start_time=datetime.strptime(meeting_json["start"]["dateTime"][:-8], datetime_format),
-        end_time=datetime.strptime(meeting_json["end"]["dateTime"][:-8], datetime_format),
+        start_time=datetime.strptime(
+            meeting_json["start"]["dateTime"][:-8],
+            datetime_format
+        ),
+        end_time=datetime.strptime(
+            meeting_json["end"]["dateTime"][:-8],
+            datetime_format
+        ),
         calendar_event_id=meeting_json["id"],
         attendee_name=meeting_json["attendees"][0]["emailAddress"]["name"],
         attendee_email=meeting_json["attendees"][0]["emailAddress"]["address"],

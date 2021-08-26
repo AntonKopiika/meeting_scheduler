@@ -2,8 +2,8 @@ from datetime import datetime
 
 import msal
 import requests
-
 from google_secrets_manager_client.encryption import CryptoService
+
 from meeting_scheduler.app_config import Settings
 from meeting_scheduler.src.db_service import add_internal_meeting_from_outlook
 from meeting_scheduler.src.models import UserAccount
