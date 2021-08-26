@@ -13,3 +13,4 @@ class UserSchema(SQLAlchemyAutoSchema, DeserializationMixin):
         sqla_session = db.session
         include_relationships = True
         load_instance = True
+        load_only = ["password"]

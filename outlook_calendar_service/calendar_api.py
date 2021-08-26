@@ -1,12 +1,8 @@
-from datetime import datetime
-
 import msal
 import requests
 from google_secrets_manager_client.encryption import CryptoService
 
 from meeting_scheduler.app_config import Settings
-from meeting_scheduler.src.db_service import add_internal_meeting_from_outlook
-from meeting_scheduler.src.models import UserAccount
 
 settings = Settings()
 
@@ -129,7 +125,7 @@ class OutlookApiService:
         return graph_data
 
 
-def get_outlook_token_from_user_account(acc: UserAccount):
+def get_outlook_token_from_user_account(acc):
     app = msal.ConfidentialClientApplication(
         settings.outlook_client_id, authority=settings.outlook_authority,
         client_credential=settings.outlook_client_secret
@@ -141,25 +137,3 @@ def get_outlook_token_from_user_account(acc: UserAccount):
     if result and "access_token" in result:
         return result
     return None
-
-
-def get_user_meetings_from_outlook_account(user_acc: UserAccount):
-    token = get_outlook_token_from_user_account(user_acc)
-    response_json = OutlookApiService(token).get_event()
-    meetings = []
-    if response_json.get("value"):
-        meetings = response_json["value"]
-    return meetings
-
-
-def sync_meetings_with_db(user_acc_id: int):
-    datetime_format = "%Y-%m-%dT%H:%M:%S"
-    user_acc = UserAccount.query.get(user_acc_id)
-    meetings_from_outlook = get_user_meetings_from_outlook_account(user_acc)
-    meetings_from_db = user_acc.user.meetings
-    start_times = [meeting.start_time for meeting in meetings_from_db]
-
-    for outlook_meeting in meetings_from_outlook:
-        start = datetime.strptime(outlook_meeting["start"]["dateTime"][:-8], datetime_format)
-        if start not in start_times:
-            add_internal_meeting_from_outlook(outlook_meeting, user_acc.user)

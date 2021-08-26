@@ -1,13 +1,15 @@
 from celery import Celery
-from outlook_calendar_service.calendar_api import sync_meetings_with_db
+from outlook_calendar_service.utils import sync_meetings_with_db
 
 from meeting_scheduler.app_config import Settings
 from meeting_scheduler.src import app_factory
 from meeting_scheduler.src.models import UserAccount
 
-celery = Celery('tasks',
-             broker=Settings().celery_broker_url,
-             backend=Settings().celery_backend_url)
+celery = Celery(
+    'tasks',
+    broker=Settings().celery_broker_url,
+    backend=Settings().celery_backend_url
+)
 
 
 @celery.task
@@ -23,7 +25,7 @@ def sync_all_outlook_calendar_users():
 def sync_outlook_user(account_id: int):
     app = app_factory.get_app()
     with app.app_context():
-        sync_meetings_with_db(account_id)
+        sync_meetings_with_db(account_id, UserAccount)
 
 
 celery.conf.beat_schedule = {
