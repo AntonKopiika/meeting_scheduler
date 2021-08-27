@@ -8,9 +8,5 @@ run:
     image: web
   worker:
     command:
-      - celery -A async_task.tasks worker -l INFO
+      - celery -A async_task.tasks worker -B -l INFO
     image: celery
-  worker-beat:
-    command:
-      - celery -A async_task.tasks beat
-    image: celery-beat
