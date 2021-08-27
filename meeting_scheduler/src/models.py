@@ -70,8 +70,8 @@ class Meeting(db.Model):
     start_time = db.Column(db.DateTime, nullable=False)
     end_time = db.Column(db.DateTime, nullable=False)
     calendar_event_id = db.Column(db.String(256))
-    attendee_name = db.Column(db.String(64), nullable=False)
-    attendee_email = db.Column(db.String(64), nullable=False)
+    attendee_name = db.Column(db.String(64))
+    attendee_email = db.Column(db.String(64))
     link = db.Column(db.String(256), nullable=False)
     additional_info = db.Column(db.String(256))
 

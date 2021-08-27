@@ -92,10 +92,12 @@ def add_internal_meeting_from_outlook(meeting_json: dict, host: User):
             datetime_format
         ),
         calendar_event_id=meeting_json["id"],
-        attendee_name=meeting_json["attendees"][0]["emailAddress"]["name"],
-        attendee_email=meeting_json["attendees"][0]["emailAddress"]["address"],
         link=meeting_json["webLink"]
     )
+    attendees = meeting_json["attendees"]
+    if attendees:
+        meeting.attendee_name = attendees[0]["emailAddress"]["name"]
+        meeting.attendee_email = attendees[0]["emailAddress"]["address"]
     db.session.add(meeting)
     db.session.commit()
 
