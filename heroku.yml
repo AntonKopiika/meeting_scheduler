@@ -1,12 +1,10 @@
 build:
   docker:
     web: Dockerfile
-    celery: Dockerfile
-    celery-beat: Dockerfile
 run:
   web:
     image: web
   worker:
     command:
       - celery -A async_task.tasks worker -B -l INFO
-    image: celery
+    image: web
