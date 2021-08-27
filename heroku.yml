@@ -1,3 +1,16 @@
 build:
   docker:
     web: Dockerfile
+    celery: Dockerfile
+    celery-beat: Dockerfile
+run:
+  web:
+    image: web
+  worker:
+    command:
+      - celery -A async_task.tasks worker -l INFO
+    image: celery
+  worker-beat:
+    command:
+      - celery -A async_task.tasks beat
+    image: celery-beat
