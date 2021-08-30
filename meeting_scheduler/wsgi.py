@@ -68,7 +68,7 @@ def create_event():
             "start_time": start_time,
             "end_time": end_time
         }
-        response = requests.post("http://mymeeeting.com/event", json=data)
+        response = requests.post("http://www.mymeeeting.com/event", json=data)
         if response.status_code == http.HTTPStatus.CREATED:
             flash("New event successfully created")
             return redirect("index")
@@ -79,13 +79,13 @@ def create_event():
 
 @app.route("/users")
 def user_list():
-    users = requests.get("http://mymeeeting.com/user").json()
+    users = requests.get("http://www.mymeeeting.com/user").json()
     return render_template('users.html', users=users)
 
 
 @app.route("/events/<user_id>")
 def events_list(user_id):
-    events = requests.get(f"http://mymeeeting.com/user/events/{user_id}").json()
+    events = requests.get(f"http://www.mymeeeting.com/user/events/{user_id}").json()
     return render_template('events.html', events=events)
 
 
@@ -95,7 +95,7 @@ def meetings_list(user_id):
     today = datetime.today().strftime(date_format)
     last_day = (datetime.today() + relativedelta(months=1)).strftime(date_format)
     meetings = requests.get(
-        f"http://mymeeeting.com/meeting?user={user_id}&start={today}&end={last_day}"
+        f"http://www.mymeeeting.com/meeting?user={user_id}&start={today}&end={last_day}"
     ).json()
     return render_template('meetings.html', meetings=meetings)
 
@@ -103,8 +103,8 @@ def meetings_list(user_id):
 @app.route("/create_meeting/<event_id>", methods=["GET", "POST"])
 def create_meeting(event_id):
     form = MeetingForm()
-    slots = requests.get(f"http://mymeeeting.com/timeslot/{event_id}").json()
-    event = requests.get(f"http://mymeeeting.com/event/{event_id}").json()
+    slots = requests.get(f"http://www.mymeeeting.com/timeslot/{event_id}").json()
+    event = requests.get(f"http://www.mymeeeting.com/event/{event_id}").json()
     if form.validate_on_submit():
         datetime_format = Settings().datetime_format
         start_time = form.start_time.data.strftime(datetime_format)
@@ -117,7 +117,7 @@ def create_meeting(event_id):
         link = form.link.data
         data = {
             "host": event["host"],
-            "event": event_id,
+            "event": event["id"],
             "start_time": start_time,
             "end_time": end_time,
             "attendee_name": attendee_name,
@@ -125,7 +125,7 @@ def create_meeting(event_id):
             "additional_info": additional_info,
             "link": link
         }
-        response = requests.post("http://mymeeeting.com/meeting", json=data)
+        response = requests.post("http://www.mymeeeting.com/meeting", json=data)
         if response.status_code == http.HTTPStatus.CREATED:
             flash("New meeting successfully created")
             return redirect(url_for("index"))
@@ -136,7 +136,7 @@ def create_meeting(event_id):
 
 @app.route("/delete_event/<event_id>")
 def delete_event(event_id):
-    response = requests.delete(f"http://mymeeeting.com/event/{event_id}")
+    response = requests.delete(f"http://www.mymeeeting.com/event/{event_id}")
     if response.status_code == http.HTTPStatus.NO_CONTENT:
         flash("Event successfully deleted")
     else:
@@ -146,7 +146,7 @@ def delete_event(event_id):
 
 @app.route("/delete_meeting/<meeting_id>")
 def delete_meeting(meeting_id):
-    response = requests.delete(f"http://mymeeeting.com/meeting/{meeting_id}")
+    response = requests.delete(f"http://www.mymeeeting.com/meeting/{meeting_id}")
     if response.status_code == http.HTTPStatus.NO_CONTENT:
         flash("Meeting successfully deleted")
     else:
@@ -156,7 +156,7 @@ def delete_meeting(meeting_id):
 
 @app.route("/delete_user/<user_id>")
 def delete_user(user_id):
-    response = requests.delete(f"http://mymeeeting.com/user/{user_id}")
+    response = requests.delete(f"http://www.mymeeeting.com/user/{user_id}")
     if response.status_code == http.HTTPStatus.NO_CONTENT:
         flash("User successfully deleted")
     else:
