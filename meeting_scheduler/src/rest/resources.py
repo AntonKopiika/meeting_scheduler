@@ -1,4 +1,5 @@
 import datetime
+import json
 from typing import Optional
 
 from flask import request
@@ -11,7 +12,7 @@ from outlook_calendar_service.calendar_api import (
 
 from meeting_scheduler.app_config import Settings
 from meeting_scheduler.src import app_factory
-from meeting_scheduler.src.db_service import CRUDService, create_user_account, get_user_meetings
+from meeting_scheduler.src.db_service import CRUDService, create_user_account, get_user_meetings, get_event_free_slots
 from meeting_scheduler.src.models import Event, Meeting, User, UserAccount
 from meeting_scheduler.src.schemas.event import EventSchema
 from meeting_scheduler.src.schemas.meeting import MeetingSchema
@@ -25,6 +26,29 @@ db = app_factory.get_db()
 class Smoke(Resource):
     def get(self):
         return {"status": "OK"}, 200
+
+
+class UserEventApi(Resource):
+    event_schema = EventSchema()
+    user_db_service = CRUDService(User, db)
+
+    def get(self, user_id):
+        user = self.user_db_service.get(user_id)
+        if not user:
+            return "", 404
+        return self.event_schema.dump(user.events, many=True), 200
+
+
+class TimeslotApi(Resource):
+    event_schema = EventSchema()
+    event_db_service = CRUDService(Event, db)
+
+    def get(self, event_id):
+        event = self.event_db_service.get(event_id)
+        if event:
+            slots = get_event_free_slots(event)
+            return slots
+        return "", 404
 
 
 class UserApi(Resource):

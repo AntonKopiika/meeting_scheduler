@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     outlook_client_id: str = "e5998309-9706-4897-b8b5-efc1ea6cd347"
     outlook_authority: str = "https://login.microsoftonline.com/common"
     redirect_path: str = "/getAToken"
-    redirect_uri: str = f"https://www.mymeeeting.com{redirect_path}"
+    redirect_uri: str = f"http://127.0.0.1:5000{redirect_path}"
     user_endpoint: str = "https://graph.microsoft.com/v1.0/me/"
     event_endpoint: str = f'{user_endpoint}events/'
     scope: List = ["Calendars.ReadWrite", "User.Read"]

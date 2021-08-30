@@ -31,28 +31,26 @@ def get_user_meetings(request: Request):
 def get_event_free_slots(event: Event):
     current_time = datetime.now()
     date_range = DateTimeRange(event.start_date, event.end_date)
-    start_time = event.start_date + timedelta(
-        hours=event.start_time.hour,
-        minutes=event.start_time.minute
-    )
+    start_time = datetime.combine(event.start_date, event.start_time.time())
     meetings = [meeting.start_time for meeting in event.meetings]
     free_slots = []
+    datetime_format = Settings().datetime_format
     if current_time > start_time:
         next_day = current_time + timedelta(days=1)
         next_day = datetime(year=next_day.year, month=next_day.month, day=next_day.day)
         date_range = DateTimeRange(next_day, event.end_date)
-        time_delta = current_time - start_time
-        start = start_time + time_delta.days * timedelta(days=1) + (
-            time_delta.seconds // (60 * event.duration) + 1
-        ) * timedelta(minutes=event.duration)
-        if start.time() < event.end_time:
-            end = start.date + timedelta(
-                hours=event.end_time.hour,
-                minutes=event.end_time.minute
-            )
+        if start_time.time()<current_time.time():
+            time_delta = current_time - start_time
+            start = start_time + time_delta.days * timedelta(days=1) + (
+                time_delta.seconds // (60 * event.duration) + 1
+            ) * timedelta(minutes=event.duration)
+        else:
+            start = datetime.combine(datetime.today().date(), start_time.time())
+        if start.time() < event.end_time.time():
+            end = datetime.combine(start.date(), event.end_time.time())
             time_range = DateTimeRange(start, end)
             slots = [
-                slot for slot in
+                slot.strftime(datetime_format) for slot in
                 list(time_range.range(timedelta(minutes=event.duration)))[:-1]
                 if slot not in meetings]
             free_slots.extend(slots)
@@ -71,7 +69,7 @@ def get_event_free_slots(event: Event):
             )
             time_range = DateTimeRange(start, end)
             slots = [
-                slot for slot in
+                slot.strftime(datetime_format) for slot in
                 list(time_range.range(timedelta(minutes=event.duration)))[:-1]
                 if slot not in meetings
             ]

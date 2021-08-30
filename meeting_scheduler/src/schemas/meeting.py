@@ -1,4 +1,5 @@
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
+from marshmallow_sqlalchemy.fields import Nested
 
 from meeting_scheduler.src import app_factory
 from meeting_scheduler.src.models import Meeting
