@@ -1,4 +1,5 @@
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
+from marshmallow_sqlalchemy.fields import Nested
 
 from meeting_scheduler.src import app_factory
 from meeting_scheduler.src.models import Meeting
@@ -12,5 +13,4 @@ class MeetingSchema(SQLAlchemyAutoSchema, DeserializationMixin):
         model = Meeting
         sqla_session = db.session
         include_relationships = True
-        include_fk = True
         load_instance = True

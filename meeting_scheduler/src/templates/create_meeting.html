@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Create meeting</title>
+</head>
+<body>
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+                <h4>{{ message }}</h4>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    <h2>Free timeslots</h2>
+    {% for slot in timeslots%}
+        <li>{{slot}}</li>
+    {% endfor %}
+    <div class="meeting_form"> <h1>Create meeting</h1>
+    <form action="" method="post">
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.start_time.label }}<br>
+            {{ form.start_time(size=32) }}<br>
+            {% for error in form.start_time.errors %}
+                <span style="color: red;">{{ error }}</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.attendee_name.label }}<br>
+            {{ form.attendee_name(size=32) }}<br>
+            {% for error in form.attendee_name.errors %}
+                <span style="color: red;">{{ error }}</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.attendee_email.label }}<br>
+            {{ form.attendee_email(size=32) }}<br>
+            {% for error in form.attendee_email.errors %}
+                <span style="color: red;">{{ error }}</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.link.label }}<br>
+            {{ form.link(size=32) }}<br>
+            {% for error in form.link.errors %}
+                <span style="color: red;">{{ error }}</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.additional_info.label }}<br>
+            {{ form.additional_info(size=32) }}<br>
+            {% for error in form.additional_info.errors %}
+                <span style="color: red;">{{ error }}</span>
+            {% endfor %}
+        </p>
+        <p>{{ form.submit() }}</p>
+    </form>
+    </div>
+
+</body>
+</html>

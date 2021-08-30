@@ -1,5 +1,13 @@
 from meeting_scheduler.src import app_factory
-from meeting_scheduler.src.rest.resources import MeetingApi, Smoke, TimeslotApi, UserApi
+from meeting_scheduler.src.rest.resources import (
+    EventApi,
+    MeetingApi,
+    Smoke,
+    TimeslotApi,
+    UserAccountApi,
+    UserApi,
+    UserEventApi,
+)
 
 api = app_factory.get_api()
 
@@ -20,8 +28,24 @@ api.add_resource(
     strict_slashes=False
 )
 api.add_resource(
+    EventApi,
+    "/event",
+    "/event/<event_id>",
+    strict_slashes=False
+)
+api.add_resource(
+    UserAccountApi,
+    "/user/account",
+    "/user/account/<account_id>",
+    strict_slashes=False
+)
+api.add_resource(
+    UserEventApi,
+    "/user/events/<user_id>",
+    strict_slashes=False
+)
+api.add_resource(
     TimeslotApi,
-    "/timeslot",
-    "/timeslot/<timeslot_id>",
+    "/timeslot/<event_id>",
     strict_slashes=False
 )
