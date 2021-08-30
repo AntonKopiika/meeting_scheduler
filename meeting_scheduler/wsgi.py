@@ -3,24 +3,24 @@ import os
 from datetime import datetime, timedelta
 
 import msal
+import requests
 from dateutil.relativedelta import relativedelta
 from flask import flash, redirect, render_template, request, session, url_for
-from flask_login import LoginManager, current_user, login_user, logout_user, login_required
+from flask_login import LoginManager, current_user, login_required, login_user, logout_user
 from flask_migrate import Migrate
 from flask_session import Session
 from flask_talisman import Talisman
 from google_secrets_manager_client.encryption import CryptoService
 from google_secrets_manager_client.secrets_manager import init_secret_manager
 from outlook_calendar_service.calendar_api import OutlookApiService
-import requests
 from werkzeug.urls import url_parse
 
 from meeting_scheduler.app_config import Settings
 from meeting_scheduler.src import app_factory
 from meeting_scheduler.src.db_service import create_user_account
+from meeting_scheduler.src.forms.event import EventForm
 from meeting_scheduler.src.forms.login import LoginForm
 from meeting_scheduler.src.forms.meeting import MeetingForm
-from meeting_scheduler.src.forms.event import EventForm
 from meeting_scheduler.src.models import User
 
 settings = Settings()
@@ -70,10 +70,10 @@ def create_event():
         }
         response = requests.post("http://127.0.0.1:5000/event", json=data)
         if response.status_code == http.HTTPStatus.CREATED:
-            flash(f"New event successfully created")
+            flash("New event successfully created")
             return redirect("index")
         else:
-            flash(f"Something went wrong while creating new event")
+            flash("Something went wrong while creating new event")
     return render_template('create_event.html', form=form)
 
 
@@ -94,7 +94,9 @@ def meetings_list(user_id):
     date_format = "%Y-%m-%d"
     today = datetime.today().strftime(date_format)
     last_day = (datetime.today() + relativedelta(months=1)).strftime(date_format)
-    meetings = requests.get(f"http://127.0.0.1:5000/meeting?user={user_id}&start={today}&end={last_day}").json()
+    meetings = requests.get(
+        f"http://127.0.0.1:5000/meeting?user={user_id}&start={today}&end={last_day}"
+    ).json()
     return render_template('meetings.html', meetings=meetings)
 
 
@@ -106,7 +108,9 @@ def create_meeting(event_id):
     if form.validate_on_submit():
         datetime_format = Settings().datetime_format
         start_time = form.start_time.data.strftime(datetime_format)
-        end_time = (form.start_time.data + timedelta(minutes=event["duration"])).strftime(datetime_format)
+        end_time = (
+            form.start_time.data + timedelta(minutes=event["duration"])
+        ).strftime(datetime_format)
         attendee_name = form.attendee_name.data
         attendee_email = form.attendee_email.data
         additional_info = form.additional_info.data
@@ -123,10 +127,10 @@ def create_meeting(event_id):
         }
         response = requests.post("http://127.0.0.1:5000/meeting", json=data)
         if response.status_code == http.HTTPStatus.CREATED:
-            flash(f"New meeting successfully created")
+            flash("New meeting successfully created")
             return redirect(url_for("index"))
         else:
-            flash(f"Something went wrong while creating new meeting")
+            flash("Something went wrong while creating new meeting")
     return render_template('create_meeting.html', form=form, timeslots=slots)
 
 
@@ -134,9 +138,9 @@ def create_meeting(event_id):
 def delete_event(event_id):
     response = requests.delete(f"http://127.0.0.1:5000/event/{event_id}")
     if response.status_code == http.HTTPStatus.NO_CONTENT:
-        flash(f"Event successfully deleted")
+        flash("Event successfully deleted")
     else:
-        flash(f"Something went wrong")
+        flash("Something went wrong")
     return redirect(url_for("index"))
 
 
@@ -144,9 +148,9 @@ def delete_event(event_id):
 def delete_meeting(meeting_id):
     response = requests.delete(f"http://127.0.0.1:5000/meeting/{meeting_id}")
     if response.status_code == http.HTTPStatus.NO_CONTENT:
-        flash(f"Meeting successfully deleted")
+        flash("Meeting successfully deleted")
     else:
-        flash(f"Something went wrong")
+        flash("Something went wrong")
     return redirect(url_for("index"))
 
 
@@ -154,9 +158,9 @@ def delete_meeting(meeting_id):
 def delete_user(user_id):
     response = requests.delete(f"http://127.0.0.1:5000/user/{user_id}")
     if response.status_code == http.HTTPStatus.NO_CONTENT:
-        flash(f"User successfully deleted")
+        flash("User successfully deleted")
     else:
-        flash(f"Something went wrong")
+        flash("Something went wrong")
     return redirect(url_for("index"))
 
 

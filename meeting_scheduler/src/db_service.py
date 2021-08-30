@@ -39,7 +39,7 @@ def get_event_free_slots(event: Event):
         next_day = current_time + timedelta(days=1)
         next_day = datetime(year=next_day.year, month=next_day.month, day=next_day.day)
         date_range = DateTimeRange(next_day, event.end_date)
-        if start_time.time()<current_time.time():
+        if start_time.time() < current_time.time():
             time_delta = current_time - start_time
             start = start_time + time_delta.days * timedelta(days=1) + (
                 time_delta.seconds // (60 * event.duration) + 1

@@ -3,10 +3,10 @@ from meeting_scheduler.src.rest.resources import (
     EventApi,
     MeetingApi,
     Smoke,
+    TimeslotApi,
     UserAccountApi,
     UserApi,
     UserEventApi,
-    TimeslotApi
 )
 
 api = app_factory.get_api()

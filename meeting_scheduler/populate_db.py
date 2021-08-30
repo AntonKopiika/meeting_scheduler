@@ -1,4 +1,5 @@
 from datetime import datetime
+
 from meeting_scheduler.app_config import Settings
 from meeting_scheduler.src import app_factory
 from meeting_scheduler.src.models import Event, Meeting, User, UserAccount
