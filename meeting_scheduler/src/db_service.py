@@ -33,7 +33,7 @@ def get_event_free_slots(event: Event):
     date_range = DateTimeRange(event.start_date, event.end_date)
     start_time = datetime.combine(event.start_date, event.start_time.time())
     meetings = [meeting.start_time for meeting in event.meetings]
-    free_slots = []
+    free_slots = {}
     datetime_format = Settings().datetime_format
     if current_time > start_time:
         next_day = current_time + timedelta(days=1)
@@ -42,18 +42,19 @@ def get_event_free_slots(event: Event):
         if start_time.time() < current_time.time():
             time_delta = current_time - start_time
             start = start_time + time_delta.days * timedelta(days=1) + (
-                time_delta.seconds // (60 * event.duration) + 1
+                    time_delta.seconds // (60 * event.duration) + 1
             ) * timedelta(minutes=event.duration)
         else:
             start = datetime.combine(datetime.today().date(), start_time.time())
         if start.time() < event.end_time.time():
             end = datetime.combine(start.date(), event.end_time.time())
             time_range = DateTimeRange(start, end)
+
             slots = [
                 slot.strftime(datetime_format) for slot in
                 list(time_range.range(timedelta(minutes=event.duration)))[:-1]
                 if slot not in meetings]
-            free_slots.extend(slots)
+            free_slots[str(start.date())] = slots
 
     for day in date_range.range(timedelta(days=1)):
         if event.working_days and day.weekday() > 4:
@@ -73,7 +74,7 @@ def get_event_free_slots(event: Event):
                 list(time_range.range(timedelta(minutes=event.duration)))[:-1]
                 if slot not in meetings
             ]
-            free_slots.extend(slots)
+            free_slots[str(day.date())] = slots
     return free_slots
 
 

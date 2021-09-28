@@ -60,7 +60,7 @@ class Event(db.Model):
     )
 
     def __repr__(self):
-        return f'<Event: {self.start_time}-{self.end_time} for {self.host}>'
+        return f'<Event {self.title}: {self.start_time}-{self.end_time} for {self.host}>'
 
 
 class Meeting(db.Model):

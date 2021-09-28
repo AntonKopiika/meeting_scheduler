@@ -1,8 +1,7 @@
-import datetime
-import json
 from typing import Optional
 
 from flask import request
+from flask_jwt_extended import jwt_required
 from flask_restful import Resource
 from google_secrets_manager_client.encryption import CryptoService
 from outlook_calendar_service.calendar_api import (
@@ -37,6 +36,7 @@ class UserEventApi(Resource):
     event_schema = EventSchema()
     user_db_service = CRUDService(User, db)
 
+    @jwt_required()
     def get(self, user_id):
         user = self.user_db_service.get(user_id)
         if not user:
@@ -60,6 +60,7 @@ class UserApi(Resource):
     user_schema = UserSchema()
     user_db_service = CRUDService(User, db)
 
+    @jwt_required()
     def get(self, user_id: Optional[int] = None):
         if user_id is None:
             users = self.user_db_service.get_all()
@@ -70,6 +71,8 @@ class UserApi(Resource):
         return self.user_schema.dump(user), 200
 
     def post(self):
+        if User.query.filter(User.username == request.json['username']).all():
+            return {},
         user = self.user_schema.deserialize(request.json)
         if user:
             self.user_db_service.add(user)
@@ -104,6 +107,7 @@ class MeetingApi(Resource):
     meeting_db_service = CRUDService(Meeting, db)
     crypto_service = CryptoService()
 
+    @jwt_required()
     def get(self, meeting_id: Optional[int] = None):
         if meeting_id is None:
             if request.args:
@@ -184,6 +188,7 @@ class MeetingApi(Resource):
             return self.meeting_schema.dump(meeting), 200
         return "", 400
 
+    @jwt_required()
     def delete(self, meeting_id: int):
         meeting = self.meeting_db_service.get(meeting_id)
         if meeting:
@@ -264,6 +269,7 @@ class EventApi(Resource):
             return "", 404
         return self.event_schema.dump(event), 200
 
+    @jwt_required()
     def post(self):
         event = self.event_schema.deserialize(request.json)
         if event:
@@ -271,6 +277,7 @@ class EventApi(Resource):
             return self.event_schema.dump(event), 201
         return "", 400
 
+    @jwt_required()
     def put(self, event_id: int):
         event = self.event_db_service.get(event_id)
         if not event:
@@ -278,21 +285,22 @@ class EventApi(Resource):
         new_event = self.event_schema.deserialize(request.json)
         if new_event:
             update_json = {
-                "host_id": new_event.host.id,
-                "title": new_event.title,
-                "start_date": new_event.start_date,
-                "end_date": new_event.end_date,
-                "duration": new_event.duration,
-                "working_days": new_event.working_days,
-                "description": new_event.description,
-                "event_type": new_event.event_type,
-                "start_time": new_event.start_time,
-                "end_time": new_event.end_time
+                "host_id": request.json.get("host"),
+                "title": request.json.get("title"),
+                "start_date": request.json.get("start_date"),
+                "end_date": request.json.get("end_date"),
+                "duration": request.json.get("duration"),
+                "working_days": request.json.get("working_days"),
+                "description": request.json.get("description"),
+                "event_type": request.json.get("event_type"),
+                "start_time": request.json.get("start_time"),
+                "end_time": request.json.get("end_time")
             }
             self.event_db_service.update(event, update_json)
-            return self.event_schema.dump(event), 200
+            return self.event_schema.dump(new_event), 200
         return "", 400
 
+    @jwt_required()
     def delete(self, event_id: int):
         event = self.event_db_service.get(event_id)
         if event:

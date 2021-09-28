@@ -8,9 +8,14 @@ from meeting_scheduler.src.rest.resources import (
     UserApi,
     UserEventApi,
 )
+from meeting_scheduler.src.rest.login import UserLogin
 
 api = app_factory.get_api()
 
+api.add_resource(
+    UserLogin,
+    "/api/login"
+)
 api.add_resource(
     Smoke,
     "/smoke"

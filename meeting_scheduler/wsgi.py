@@ -6,6 +6,8 @@ import msal
 import requests
 from dateutil.relativedelta import relativedelta
 from flask import flash, redirect, render_template, request, session, url_for
+from flask_cors import CORS
+from flask_jwt_extended import JWTManager
 from flask_login import LoginManager, current_user, login_required, login_user, logout_user
 from flask_migrate import Migrate
 from flask_session import Session
@@ -27,15 +29,11 @@ settings = Settings()
 app = app_factory.get_app()
 app.config.from_object(settings)
 Session(app)
+CORS(app)
+jwt = JWTManager(app)
 migrate = Migrate(app, app_factory.get_db())
 login_manager = LoginManager()
 login_manager.init_app(app)
-
-
-@app.route("/")
-@app.route("/index")
-def index():
-    return render_template('index.html')
 
 
 @login_required
@@ -68,7 +66,7 @@ def create_event():
             "start_time": start_time,
             "end_time": end_time
         }
-        response = requests.post("http://www.mymeeeting.com/event", json=data)
+        response = requests.post("http://127.0.0.1:5000/event", json=data)
         if response.status_code == http.HTTPStatus.CREATED:
             flash("New event successfully created")
             return redirect("index")
@@ -77,122 +75,10 @@ def create_event():
     return render_template('create_event.html', form=form)
 
 
-@app.route("/users")
-def user_list():
-    users = requests.get("http://www.mymeeeting.com/user").json()
-    return render_template('users.html', users=users)
-
-
-@app.route("/events/<user_id>")
-def events_list(user_id):
-    events = requests.get(f"http://www.mymeeeting.com/user/events/{user_id}").json()
-    return render_template('events.html', events=events)
-
-
-@app.route("/meetings/<user_id>")
-def meetings_list(user_id):
-    date_format = "%Y-%m-%d"
-    today = datetime.today().strftime(date_format)
-    last_day = (datetime.today() + relativedelta(months=1)).strftime(date_format)
-    meetings = requests.get(
-        f"http://www.mymeeeting.com/meeting?user={user_id}&start={today}&end={last_day}"
-    ).json()
-    return render_template('meetings.html', meetings=meetings)
-
-
-@app.route("/create_meeting/<event_id>", methods=["GET", "POST"])
-def create_meeting(event_id):
-    form = MeetingForm()
-    slots = requests.get(f"http://www.mymeeeting.com/timeslot/{event_id}").json()
-    event = requests.get(f"http://www.mymeeeting.com/event/{event_id}").json()
-    if form.validate_on_submit():
-        datetime_format = Settings().datetime_format
-        start_time = form.start_time.data.strftime(datetime_format)
-        end_time = (
-            form.start_time.data + timedelta(minutes=event["duration"])
-        ).strftime(datetime_format)
-        attendee_name = form.attendee_name.data
-        attendee_email = form.attendee_email.data
-        additional_info = form.additional_info.data
-        link = form.link.data
-        data = {
-            "host": event["host"],
-            "event": event["id"],
-            "start_time": start_time,
-            "end_time": end_time,
-            "attendee_name": attendee_name,
-            "attendee_email": attendee_email,
-            "additional_info": additional_info,
-            "link": link
-        }
-        response = requests.post("http://www.mymeeeting.com/meeting", json=data)
-        if response.status_code == http.HTTPStatus.CREATED:
-            flash("New meeting successfully created")
-            return redirect(url_for("index"))
-        else:
-            flash("Something went wrong while creating new meeting")
-    return render_template('create_meeting.html', form=form, timeslots=slots)
-
-
-@app.route("/delete_event/<event_id>")
-def delete_event(event_id):
-    response = requests.delete(f"http://www.mymeeeting.com/event/{event_id}")
-    if response.status_code == http.HTTPStatus.NO_CONTENT:
-        flash("Event successfully deleted")
-    else:
-        flash("Something went wrong")
-    return redirect(url_for("index"))
-
-
-@app.route("/delete_meeting/<meeting_id>")
-def delete_meeting(meeting_id):
-    response = requests.delete(f"http://www.mymeeeting.com/meeting/{meeting_id}")
-    if response.status_code == http.HTTPStatus.NO_CONTENT:
-        flash("Meeting successfully deleted")
-    else:
-        flash("Something went wrong")
-    return redirect(url_for("index"))
-
-
-@app.route("/delete_user/<user_id>")
-def delete_user(user_id):
-    response = requests.delete(f"http://www.mymeeeting.com/user/{user_id}")
-    if response.status_code == http.HTTPStatus.NO_CONTENT:
-        flash("User successfully deleted")
-    else:
-        flash("Something went wrong")
-    return redirect(url_for("index"))
-
-
 @app.route("/auth_login")
 def auth_login():
     session["flow"] = _build_auth_code_flow(scopes=settings.scope)
-    return render_template(
-        "auth_login.html",
-        auth_url=session["flow"]["auth_uri"],
-    )
-
-
-@app.route("/login", methods=["GET", "POST"])
-def login():
-    if current_user.is_authenticated:
-        return redirect(url_for("index"))
-    form = LoginForm()
-    if form.validate_on_submit():
-        user = User.query.filter(User.username == form.username.data).first()
-        if user and user.check_password(form.password.data):
-            login_user(user, remember=form.remember.data)
-            if user.accounts:
-                result = _get_token_from_refresh_token(current_user)
-                session["user"] = result.get("id_token_claims")
-            flash("You are successfully logged in")
-            next_page = request.args.get('next')
-            if not next_page or url_parse(next_page).netloc != "":
-                next_page = url_for("index")
-            return redirect(next_page)
-        flash("Invalid username or password")
-        return redirect(url_for("login"))
-    return render_template("login.html", form=form, title="Sign in")
+    return redirect(session["flow"]["auth_uri"])
 
 
 @app.route(settings.redirect_path)
@@ -216,7 +102,7 @@ def authorized():
         _save_cache(cache)
     except ValueError:
         pass
-    return redirect(url_for("index"))
+    return redirect("http://127.0.0.1:3000/about")
 
 
 @app.route("/logout")
@@ -231,22 +117,7 @@ def auth_logout():
     session.clear()
     return redirect(
         settings.outlook_authority + "/oauth2/v2.0/logout"
-        "?post_logout_redirect_uri=" + url_for("index", _external=True))
-
-
-@app.route("/graphcall")
-def graphcall():
-    token = _get_token_from_cache(settings.scope)
-    if not token:
-        return redirect(url_for("auth_login"))
-    graph_data = OutlookApiService(token).get_user()
-    return render_template('display.html', result=graph_data)
-
-
-@app.errorhandler(400)
-def page_not_found(error):
-    error = 'Oops. Something wrong'
-    return render_template('400.html', error=error), 400
+                                     "?post_logout_redirect_uri=" + url_for("index", _external=True))
 
 
 def _load_cache():

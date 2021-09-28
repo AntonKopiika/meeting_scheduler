@@ -23,38 +23,38 @@ def populate_db():
         Event(
             host=users[0],
             title="test_event",
-            start_date=datetime.strptime("2021-07-07T00:00:00", datetime_format).date(),
-            end_date=datetime.strptime("2021-09-07T00:00:00", datetime_format).date(),
+            start_date=datetime.strptime("2021-09-07T00:00:00", datetime_format).date(),
+            end_date=datetime.strptime("2021-10-07T00:00:00", datetime_format).date(),
             duration=30,
             working_days=True,
             description="test_event",
             event_type="online",
-            start_time=datetime.strptime("2021-07-07T12:00:00", datetime_format),
-            end_time=datetime.strptime("2021-07-07T16:00:00", datetime_format)
+            start_time=datetime.strptime("2021-09-07T12:00:00", datetime_format),
+            end_time=datetime.strptime("2021-10-07T16:00:00", datetime_format)
         ),
         Event(
             host=users[1],
             title="test_event",
-            start_date=datetime.strptime("2021-07-07T00:00:00", datetime_format).date(),
-            end_date=datetime.strptime("2021-09-07T00:00:00", datetime_format).date(),
+            start_date=datetime.strptime("2021-09-07T00:00:00", datetime_format).date(),
+            end_date=datetime.strptime("2021-10-07T00:00:00", datetime_format).date(),
             duration=30,
             working_days=True,
             description="test_event",
             event_type="online",
-            start_time=datetime.strptime("2021-07-07T12:00:00", datetime_format),
-            end_time=datetime.strptime("2021-07-07T16:00:00", datetime_format)
+            start_time=datetime.strptime("2021-09-07T12:00:00", datetime_format),
+            end_time=datetime.strptime("2021-10-07T16:00:00", datetime_format)
         ),
         Event(
             host=users[2],
             title="test_event",
-            start_date=datetime.strptime("2021-07-07T00:00:00", datetime_format).date(),
-            end_date=datetime.strptime("2021-09-07T00:00:00", datetime_format).date(),
+            start_date=datetime.strptime("2021-09-07T00:00:00", datetime_format).date(),
+            end_date=datetime.strptime("2021-10-07T00:00:00", datetime_format).date(),
             duration=30,
             working_days=True,
             description="test_event",
             event_type="online",
-            start_time=datetime.strptime("2021-07-07T12:00:00", datetime_format),
-            end_time=datetime.strptime("2021-07-07T16:00:00", datetime_format)
+            start_time=datetime.strptime("2021-09-07T12:00:00", datetime_format),
+            end_time=datetime.strptime("2021-10-07T16:00:00", datetime_format)
         )
     ]
     db.session.add_all(events)
