@@ -1,12 +1,21 @@
+import json
 import os
 
 from google.cloud import secretmanager
 
-PROJECT_ID = "secret-manager-322613"
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.path.join(
-    os.getcwd(),
-    "secret-manager-322613-56722a79fc96.json"
-)
+from meeting_scheduler.app_config import Settings
+
+settings = Settings()
+PROJECT_ID = settings.google_project_id
+
+
+def init_secret_manager():
+    with open(settings.google_application_creds, 'r+') as file:
+        file_data = json.load(file)
+        file_data["private_key"] = settings.google_service_private_key
+        file.seek(0)
+        json.dump(file_data, file, indent=4)
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = settings.google_application_creds
 
 
 def create_secret(secret_id):

@@ -13,6 +13,3 @@ before_script:
   - flake8 meeting_scheduler
 script:
   - pytest
-after_success:
-  - sh .travis/deploy_dockerhub.sh
-  - sh .travis/deploy_heroku.sh

@@ -1,3 +1,10 @@
 build:
   docker:
     web: Dockerfile
+run:
+  web:
+    image: web
+  worker:
+    command:
+      - celery -A async_task.tasks worker -B -l INFO
+    image: web
