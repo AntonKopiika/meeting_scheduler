@@ -64,7 +64,7 @@ const EventForm = ({create}) => {
             startTimeValid: startTimeValid,
             endTimeValid: endTimeValid,
             durationValid: durationValid,
-            formValid: formState.titleValid && formState.startTimeValid && formState.endTimeValid && formState.durationValid
+            formValid: titleValid && startTimeValid && endTimeValid && durationValid
         });
     }
     const addNewEvent = (e) => {

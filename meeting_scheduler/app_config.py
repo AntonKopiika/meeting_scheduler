@@ -1,4 +1,5 @@
 import os
+from datetime import timedelta
 from typing import List
 
 from pydantic import BaseSettings, Field
@@ -29,6 +30,7 @@ class Settings(BaseSettings):
     # google_service_private_key: str = Field(env="GOOGLE_PRIVATE_KEY")
 
     # app config
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=1)
     SECRET_KEY = "test"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     datetime_format = "%Y-%m-%dT%H:%M:%S"

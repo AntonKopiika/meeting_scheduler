@@ -39,7 +39,7 @@ const Login = () => {
             formErrors: fieldValidationErrors,
             usernameValid: usernameValid,
             passwordValid: passwordValid,
-            formValid: formState.usernameValid && formState.passwordValid
+            formValid: usernameValid && passwordValid
         });
     }
 
@@ -48,11 +48,12 @@ const Login = () => {
         event.preventDefault()
         const data = await UserService.login(credentials)
         if (!data.error) {
-            sessionStorage.setItem('token', `${data.access_token}`)
+            localStorage.setItem('token', `${data.access_token}`)
             setUserId(data.id)
             setIsAuth(true)
             localStorage.setItem('auth', data.id)
             sessionStorage.setItem('user_id', `${data.id}`)
+            sessionStorage.setItem('username', `${credentials.username}`)
             if (data.accounts) {
                 sessionStorage.setItem("is_outlook_auth", 'true')
             }

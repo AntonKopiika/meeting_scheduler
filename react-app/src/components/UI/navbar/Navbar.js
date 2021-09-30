@@ -11,7 +11,7 @@ const Navbar = () => {
         localStorage.removeItem('auth')
         sessionStorage.removeItem('user_id')
         sessionStorage.removeItem('is_outlook_auth')
-        sessionStorage.removeItem('token')
+        localStorage.removeItem('token')
         return history.push('/login')
     }
 

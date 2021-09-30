@@ -4,7 +4,7 @@ const Error = () => {
     return (
         <div>
            <h1 style={{color:'red'}}>
-               Looks like this page doesn't exist
+               Authorisation error. Login again please.
            </h1>
         </div>
     );

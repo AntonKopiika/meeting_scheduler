@@ -1,8 +1,9 @@
 import axios from "axios";
-const token = sessionStorage.getItem('token')
+
 export default class UserService {
 
     static async getAll() {
+        const token = localStorage.getItem('token')
         const response = await axios.get('/user', {headers: {"Authorization": `Bearer ${token}`}})
         return response.data
     }

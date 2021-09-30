@@ -44,7 +44,6 @@ const CreateMeeting = () => {
                 }>Something went wrong</h1>
             </div>)
     }
-
     return (
         <div>
             {isLoading || isEventLoading

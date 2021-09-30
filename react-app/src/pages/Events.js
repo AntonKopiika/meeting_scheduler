@@ -14,6 +14,7 @@ import EditEventForm from "../components/Event/EditEventForm";
 
 
 function Events() {
+    const username = sessionStorage.getItem("username")
     const params = useParams()
     const [events, setEvents] = useState([])
     const [editedEvent, setEditedEvent] = useState({
@@ -91,7 +92,7 @@ function Events() {
                         justifyContent: 'center',
                         marginTop: 50
                     }
-                }>Something went wrong</h1>
+                }>Something went wrong {`${eventError}`}</h1>
                 : isEventsLoading
                     ? <div style={
                         {
@@ -107,7 +108,7 @@ function Events() {
                         editModal={openEditEventModal}
                         remove={deleteEvent}
                         events={searchedAndSortedEvents}
-                        title={`Event list for user with id=${params.id}`}
+                        title={`Event list for ${username}`}
                     />
             }
         </div>

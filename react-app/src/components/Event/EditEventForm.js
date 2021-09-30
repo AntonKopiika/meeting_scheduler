@@ -16,6 +16,7 @@ const EditEventForm = ({editedEvent, setEditedEvent, update}) => {
         endTimeValid: true,
         durationValid: true
     })
+
     const validateField = (value, fieldName) => {
         let fieldValidationErrors = {...formState.formErrors}
         let titleValid = formState.titleValid
@@ -44,24 +45,25 @@ const EditEventForm = ({editedEvent, setEditedEvent, update}) => {
                 break;
         }
         setFormState({
-            ...formState,
             formErrors: fieldValidationErrors,
             titleValid: titleValid,
             startTimeValid: startTimeValid,
             endTimeValid: endTimeValid,
             durationValid: durationValid,
-            formValid: formState.titleValid && formState.startTimeValid && formState.endTimeValid && formState.durationValid
+            formValid: titleValid && startTimeValid && endTimeValid && durationValid
         });
     }
     const editEvent = (e) => {
         e.preventDefault()
-        setEditedEvent({
-            ...editedEvent,
-            duration: parseInt(editedEvent.duration),
-            start_date: editedEvent.start_time.slice(0, 10),
-            end_date: editedEvent.end_time.slice(0, 10)
-        })
-        update(editedEvent)
+        if (formState.formValid){
+            setEditedEvent({
+                ...editedEvent,
+                duration: parseInt(editedEvent.duration),
+                start_date: editedEvent.start_time.slice(0, 10),
+                end_date: editedEvent.end_time.slice(0, 10)
+            })
+            update(editedEvent)
+        }
     }
     return (
         <form>
@@ -69,13 +71,13 @@ const EditEventForm = ({editedEvent, setEditedEvent, update}) => {
             <MyInput
                 value={editedEvent.title}
                 onChange={e => {
+                    e.persist()
                     setEditedEvent({...editedEvent, title: e.target.value})
                     validateField(e.target.value, e.target.name)
                 }}
                 type="text"
                 placeholder="title"
                 name="title"
-                id="title"
             />
             <div>{
                 formState.formErrors["title"].length > 0

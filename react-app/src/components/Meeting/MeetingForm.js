@@ -45,7 +45,7 @@ const MeetingForm = ({event, timeslots}) => {
             formErrors: fieldValidationErrors,
             attendeeNameValid: attendeeNameValid,
             attendeeEmailValid: attendeeEmailValid,
-            formValid: formState.attendeeNameValid && formState.attendeeEmailValid
+            formValid: attendeeNameValid && attendeeEmailValid
         });
     }
 
